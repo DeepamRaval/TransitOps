@@ -100,7 +100,7 @@ function App() {
                 element={
                   <ProtectedRoute roles={['Fleet Manager', 'Financial Analyst']}>
                     <FleetShell role="Fleet Manager">
-                      <PlaceholderPage title="Fuel & Expenses" desc="Log fuel transactions, upload toll receipts, and track operational cash outflow." />
+                      <Revenue />
                     </FleetShell>
                   </ProtectedRoute>
                 }
@@ -110,7 +110,7 @@ function App() {
                 element={
                   <ProtectedRoute roles={['Fleet Manager', 'Financial Analyst', 'Safety Officer']}>
                     <FleetShell role="Fleet Manager">
-                      <PlaceholderPage title="Operations Analytics" desc="Visual charts showing active vehicle utilization, fuel consumption trends, and cost efficiency." />
+                      <Reports />
                     </FleetShell>
                   </ProtectedRoute>
                 }

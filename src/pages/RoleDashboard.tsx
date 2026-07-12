@@ -46,7 +46,7 @@ export function RoleDashboard({ role }: { role: TransitOpsRole }) {
     async function loadDashboardData() {
       try {
         const [kpisData, tripsData, vehiclesData] = await Promise.all([
-          apiRequest<DashboardKPIs>('/api/dashboard/kpis/'),
+          apiRequest<DashboardKPIs>('/api/dashboard/kpis'),
           tripsApi.list(),
           vehiclesApi.list(),
         ]);

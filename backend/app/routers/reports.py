@@ -71,8 +71,11 @@ def get_analytics_report(db: Session = Depends(get_db)):
     months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     monthly_rev = []
     for i, month in enumerate(months):
-        month_trips = [t for t in trips if t.actual_distance and t.actual_distance > 0] # or check created_at month
-        month_rev = sum([t.revenue for t in month_trips]) # simplified for hackathon
+        month_trips = [
+            t for t in trips 
+            if t.actual_distance and t.actual_distance > 0 and t.start_date and t.start_date.month == (i + 1)
+        ]
+        month_rev = sum([t.revenue for t in month_trips])
         monthly_rev.append({"month": month, "revenue": month_rev if month_rev > 0 else 0})
         
     # Top Costliest Vehicles Chart (Operational costs per vehicle)

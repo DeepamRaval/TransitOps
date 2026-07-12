@@ -72,7 +72,7 @@ def get_expense_logs(db: Session = Depends(get_db)):
         "total_operational_cost": total_fuel_cost + total_other_cost
     }
 
-@app_post_fuel := router.post("/fuel")
+@router.post("/fuel")
 def create_fuel_log(payload: FuelLogCreate, db: Session = Depends(get_db)):
     vehicle = db.query(Vehicle).filter(Vehicle.id == payload.vehicle_id).first()
     if not vehicle:
@@ -100,7 +100,7 @@ def create_fuel_log(payload: FuelLogCreate, db: Session = Depends(get_db)):
     db.refresh(db_log)
     return db_log
 
-@app_post_expense := router.post("/general")
+@router.post("/general")
 def create_expense(payload: ExpenseCreate, db: Session = Depends(get_db)):
     vehicle = db.query(Vehicle).filter(Vehicle.id == payload.vehicle_id).first()
     if not vehicle:

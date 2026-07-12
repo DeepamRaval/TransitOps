@@ -84,6 +84,7 @@ class Trip(Base):
     fuel_consumed = Column(Float, nullable=True)
     revenue = Column(Float, default=0.0)
     status = Column(String(50), default="Draft")
+    start_date = Column(Date, nullable=True)
 
     vehicle = relationship("Vehicle", back_populates="trips")
     driver = relationship("Driver", back_populates="trips")
