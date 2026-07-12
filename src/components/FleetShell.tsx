@@ -25,6 +25,13 @@ import { useTheme } from '../contexts/ThemeContext';
 import type { TransitOpsRole } from '../types/auth';
 import { SideCommunication } from './layout/SideCommunication';
 
+const roleDescriptions: Record<string, string> = {
+  'Fleet Manager': 'Oversees fleet assets, maintenance, vehicle lifecycle, and operational efficiency.',
+  'Driver': 'Creates trips, assigns vehicles and drivers, and monitors active deliveries.',
+  'Safety Officer': 'Ensures driver compliance, tracks license validity, and monitors safety scores.',
+  'Financial Analyst': 'Reviews operational expenses, fuel consumption, maintenance costs, and profitability.',
+};
+
 interface FleetShellProps {
   children: React.ReactNode;
   role: TransitOpsRole;
@@ -217,6 +224,11 @@ export function FleetShell({ children, role }: FleetShellProps) {
                     <span className={`inline-block mt-1.5 text-[10px] font-bold tracking-wider uppercase px-3 py-1 rounded-full ${roleBgLight}`}>
                       {userRoleLabel}
                     </span>
+                    {roleDescriptions[userRoleLabel] && (
+                      <p className="mt-3 text-xs text-[var(--text-muted)] italic leading-relaxed px-2 border-t border-[var(--border)]/40 pt-2.5">
+                        {roleDescriptions[userRoleLabel]}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2.5">
