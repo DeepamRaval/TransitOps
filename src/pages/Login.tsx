@@ -96,7 +96,7 @@ export function Login() {
       const authUser = await login(form.email, form.password);
       navigate(homePathForRole(authUser.role));
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
       setSubmitting(false);
     }
@@ -149,7 +149,7 @@ export function Login() {
       fireCelebration();
       navigate(homePathForRole(authUser.role));
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Registration failed');
+      setError(err instanceof Error ? err.message : 'Registration failed');
     } finally {
       setSubmitting(false);
     }
@@ -173,7 +173,7 @@ export function Login() {
       await authApi.sendOtp(forgotEmail, 'reset_password');
       setForgotStep('otp');
     } catch (err) {
-      setForgotError(err instanceof ApiError ? err.message : (err instanceof Error ? err.message : 'Error sending OTP'));
+      setForgotError(err instanceof Error ? err.message : 'Error sending OTP');
     } finally {
       setForgotLoading(false);
     }
@@ -191,7 +191,7 @@ export function Login() {
       await authApi.verifyOtp(forgotEmail, forgotOtp, 'reset_password');
       setForgotStep('password');
     } catch (err) {
-      setForgotError(err instanceof ApiError ? err.message : 'Invalid OTP');
+      setForgotError(err instanceof Error ? err.message : 'Invalid OTP');
     } finally {
       setForgotLoading(false);
     }
@@ -221,7 +221,7 @@ export function Login() {
         setForgotSuccess('');
       }, 2200);
     } catch (err) {
-      setForgotError(err instanceof ApiError ? err.message : 'Reset failed');
+      setForgotError(err instanceof Error ? err.message : 'Reset failed');
     } finally {
       setForgotLoading(false);
     }
