@@ -16,7 +16,7 @@ import {
   Mail,
   Shield,
   CheckCircle,
-  MessageSquare,
+  Brain,
 } from 'lucide-react';
 import { Button } from './ui/Button';
 import { useAuth } from '../contexts/AuthContext';
@@ -270,13 +270,6 @@ export function FleetShell({ children, role }: FleetShellProps) {
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setIsChatOpen(!isChatOpen)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-semibold text-[var(--text)] hover:bg-[var(--border)]/35 transition-all cursor-pointer bg-[var(--card)]"
-            >
-              <MessageSquare size={14} className="text-orange-500 animate-pulse" />
-              <span>Chat Assistant</span>
-            </button>
-            <button
               onClick={toggleTheme}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-semibold text-[var(--text)] hover:bg-[var(--border)]/35 transition-all cursor-pointer bg-[var(--card)]"
             >
@@ -296,6 +289,16 @@ export function FleetShell({ children, role }: FleetShellProps) {
           {children}
         </main>
       </div>
+
+      {/* Floating Chatbot FAB */}
+      <button
+        onClick={() => setIsChatOpen(!isChatOpen)}
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer animate-bounce-subtle group glow-orange"
+        title="Chat Assistant"
+      >
+        <Brain size={24} className="group-hover:rotate-12 transition-transform duration-300" />
+      </button>
+
       {/* Side Chat Assistant Panel */}
       <SideCommunication isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>

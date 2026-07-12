@@ -45,12 +45,12 @@ We have successfully resolved the Phase 2 redirect issue, fully implemented Phas
 
 ---
 
-### 6. Groq-Powered Dedicated AI Assistant
+### 6. Groq-Powered Dedicated AI Assistant (Floating Widget)
 * **Vite Environment Secrets**: Created local `.env` configuration file to store the Groq API key safely under `VITE_GROQ_API_KEY`, keeping it out of git history.
 * **Real-time Database Context Pipeline**: Modified the LLM utility [ai.ts](file:///Users/deepamraval/Desktop/Deepam/Hackathons/odoo/TransitOps/src/utils/ai.ts) to automatically query the REST backend for the live list of vehicles, drivers, and trips using the authenticated user's JWT token (`transitops_token`), building a complete transport snapshot of the active operations before querying Groq.
 * **Groq Llama-3.3-70B API Connect**: Outfitted the chat queries to call `https://api.groq.com/openai/v1/chat/completions` directly, feeding the prompt with the live snapshot context.
-* **Dedicated AI Chatbot Drawer**: Refactored [SideCommunication.tsx](file:///Users/deepamraval/Desktop/Deepam/Hackathons/odoo/TransitOps/src/components/layout/SideCommunication.tsx) into a dedicated, private chatbot panel. It responds to every user message, stores chat history locally in localStorage, provides visual suggestion prompts, and supports clearing chat logs.
-* **Universal Access**: Integrated the Chat Drawer toggle directly into [FleetShell.tsx](file:///Users/deepamraval/Desktop/Deepam/Hackathons/odoo/TransitOps/src/components/FleetShell.tsx) header actions, enabling instant access to the chatbot panel from any workspace view.
+* **Floating Pop-up Chat Widget**: Refactored [SideCommunication.tsx](file:///Users/deepamraval/Desktop/Deepam/Hackathons/odoo/TransitOps/src/components/layout/SideCommunication.tsx) into a compact, floating popup widget positioned above the bottom-right corner. It uses a smooth origin-bottom-right scale-fade transition, preventing it from overlaying or blocking any top-right screen content.
+* **Sticky Chatbot FAB**: Placed a circular chatbot button in the bottom right corner of [FleetShell.tsx](file:///Users/deepamraval/Desktop/Deepam/Hackathons/odoo/TransitOps/src/components/FleetShell.tsx) with a subtle bounce animation (`animate-bounce-subtle`) and glow effect (`glow-orange`) for instant toggle.
 
 ---
 
@@ -64,13 +64,13 @@ transforming...✓ 2561 modules transformed.
 rendering chunks...
 computing gzip size...
 dist/index.html                          0.82 kB │ gzip:   0.44 kB
-dist/assets/index-C_qH-pl3.css          93.45 kB │ gzip:  14.59 kB
+dist/assets/index-YNzaQQ8E.css          94.30 kB │ gzip:  14.73 kB
 dist/assets/purify.es-C77DcmJ7.js       26.09 kB │ gzip:  10.18 kB
-dist/assets/index.es-DDpo_X3K.js       151.38 kB │ gzip:  48.88 kB
-dist/assets/html2canvas-7MLQqa9X.js    199.56 kB │ gzip:  46.78 kB
-dist/assets/index-C3xxvtf7.js        1,241.87 kB │ gzip: 368.68 kB
+dist/assets/index.es-CUIRHbt9.js       151.38 kB │ gzip:  48.88 kB
+dist/assets/html2canvas-DAhpQSUu.js    199.56 kB │ gzip:  46.78 kB
+dist/assets/index-CRVKM8np.js        1,241.91 kB │ gzip: 368.72 kB
 
-✓ built in 492ms
+✓ built in 375ms
 ```
 
 ### Database Seeding

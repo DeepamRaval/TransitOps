@@ -110,8 +110,8 @@ export function SideCommunication({ isOpen, onClose }: SideCommunicationProps) {
 
   return (
     <div 
-      className={`fixed top-0 right-0 h-full w-80 md:w-96 bg-white dark:bg-slate-900 shadow-2xl z-50 transition-transform duration-300 transform border-l border-[var(--border)] flex flex-col ${
-        isOpen ? 'translate-x-0' : 'translate-x-full'
+      className={`fixed bottom-24 right-6 w-80 md:w-[380px] h-[500px] bg-[var(--card)] text-[var(--text)] shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-50 rounded-2xl border border-[var(--border)] flex flex-col overflow-hidden transition-all duration-300 origin-bottom-right transform ${
+        isOpen ? 'scale-100 translate-y-0 opacity-100 pointer-events-auto' : 'scale-75 translate-y-10 opacity-0 pointer-events-none'
       }`}
     >
       {/* Header */}
@@ -144,7 +144,7 @@ export function SideCommunication({ isOpen, onClose }: SideCommunicationProps) {
       {/* Messages */}
       <div 
         ref={scrollRef} 
-        className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-slate-500/5"
+        className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-[var(--bg)]/30"
       >
         {messages.map((m) => {
           const isMe = m.sender === 'user';
@@ -159,7 +159,7 @@ export function SideCommunication({ isOpen, onClose }: SideCommunicationProps) {
                 )}
                 <div className={`p-3 rounded-2xl text-sm shadow-sm whitespace-pre-line ${
                   !isMe ? 'bg-orange-500 text-white rounded-tl-none border border-white/20' :
-                  'bg-slate-100 dark:bg-slate-800 text-[var(--text)] rounded-tr-none border border-[var(--border)]'
+                  'bg-[var(--border)]/25 text-[var(--text)] rounded-tr-none border border-[var(--border)]'
                 }`}>
                   {m.content}
                 </div>
@@ -203,14 +203,14 @@ export function SideCommunication({ isOpen, onClose }: SideCommunicationProps) {
       </div>
 
       {/* Input Form */}
-      <form onSubmit={handleSend} className="p-4 border-t border-[var(--border)] flex gap-2 bg-white dark:bg-slate-900">
+      <form onSubmit={handleSend} className="p-4 border-t border-[var(--border)] flex gap-2 bg-[var(--card)]">
         <input 
           type="text"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder={isTyping ? "AI is thinking..." : "Ask me anything..."}
           disabled={isTyping}
-          className="flex-1 bg-[var(--bg)] border border-[var(--border)] rounded-xl px-4 py-2 text-sm outline-none focus:border-orange-500 transition-all disabled:opacity-50"
+          className="flex-1 bg-[var(--bg)] border border-[var(--border)] text-[var(--text)] rounded-xl px-4 py-2 text-sm outline-none focus:border-orange-500 transition-all disabled:opacity-50"
         />
         <Button type="submit" size="sm" className="glow-primary shrink-0" disabled={!content.trim() || isTyping}>
           <Send size={16} />

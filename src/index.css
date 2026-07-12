@@ -213,3 +213,20 @@ body {
   background: var(--border);
   border-radius: 3px;
 }
+
+/* Floating Chat Button styles */
+.glow-orange {
+  box-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
+}
+.glow-orange:hover {
+  box-shadow: 0 0 25px rgba(249, 115, 22, 0.6);
+}
+
+@keyframes bounceSubtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.animate-bounce-subtle {
+  animation: bounceSubtle 3s ease-in-out infinite;
+}
