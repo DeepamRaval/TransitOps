@@ -121,22 +121,11 @@ export function Login() {
         return;
       }
       
-      // Directly register user
-      const authUser = await register({
-        email: form.email,
-        password: form.password,
-        name: form.name,
-        role: form.role,
-        otp: '123456', // dummy OTP since backend verification is disabled
-      });
-      
-      fireCelebration();
-      
-      setTimeout(() => {
-        navigate(homePathForRole(authUser.role));
-      }, 1000);
+      // Request verification code
+      await authApi.sendOtp(form.email, 'register');
+      setStep('otp'); // Show the verification code input screen
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed');
+      setError(err instanceof ApiError ? err.message : (err instanceof Error ? err.message : 'Failed to send verification code'));
     } finally {
       setSubmitting(false);
     }

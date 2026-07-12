@@ -154,8 +154,7 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
     if len(payload.password) < 8:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must be at least 8 characters")
 
-    # Bypass OTP verification for direct registration
-    # otp_record = _find_valid_otp(db, email, payload.otp.strip(), "register")
+    otp_record = _find_valid_otp(db, email, payload.otp.strip(), "register")
 
     user = User(
         email=email,
@@ -168,7 +167,7 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
     )
     db.add(user)
     db.commit()
-    # _consume_otp(db, otp_record)
+    _consume_otp(db, otp_record)
     db.refresh(user)
     return _issue_token(user)
 
