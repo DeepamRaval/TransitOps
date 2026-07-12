@@ -1,6 +1,6 @@
 # Phase 3 Walkthrough — Trip Management & Premium Dashboard UI
 
-We have successfully resolved the Phase 2 redirect issue, fully implemented Phase 3 (Trip Management), upgraded the user interface to match the dark-theme "Command Center" dashboard design, resolved the license reminder email system bugs, and built a Groq-powered Chat Assistant that automatically feeds the real-time Postgres database snapshot to the LLM.
+We have successfully resolved the Phase 2 redirect issue, fully implemented Phase 3 (Trip Management), upgraded the user interface to match the dark-theme "Command Center" dashboard design, resolved the license reminder email system bugs, and built a dedicated Groq-powered AI Assistant that automatically feeds the real-time Postgres database snapshot to the LLM.
 
 ## Changes Made
 
@@ -45,11 +45,12 @@ We have successfully resolved the Phase 2 redirect issue, fully implemented Phas
 
 ---
 
-### 6. Groq-Powered Chat Assistant Integration
+### 6. Groq-Powered Dedicated AI Assistant
 * **Vite Environment Secrets**: Created local `.env` configuration file to store the Groq API key safely under `VITE_GROQ_API_KEY`, keeping it out of git history.
-* **Real-time Database Context Pipeline**: Modified the LLM utility [ai.ts](file:///Users/deepamraval/Desktop/Deepam/Hackathons/odoo/TransitOps/src/utils/ai.ts) to automatically query the REST backend for the live list of vehicles, drivers, and trips using the authenticated user's JWT token, building a complete transport snapshot of the active operations before querying Groq.
+* **Real-time Database Context Pipeline**: Modified the LLM utility [ai.ts](file:///Users/deepamraval/Desktop/Deepam/Hackathons/odoo/TransitOps/src/utils/ai.ts) to automatically query the REST backend for the live list of vehicles, drivers, and trips using the authenticated user's JWT token (`transitops_token`), building a complete transport snapshot of the active operations before querying Groq.
 * **Groq Llama-3.3-70B API Connect**: Outfitted the chat queries to call `https://api.groq.com/openai/v1/chat/completions` directly, feeding the prompt with the live snapshot context.
-* **Universal Chat Drawer Access**: Integrated the Chat Drawer toggle directly into [FleetShell.tsx](file:///Users/deepamraval/Desktop/Deepam/Hackathons/odoo/TransitOps/src/components/FleetShell.tsx) header actions, enabling instant access to the chatbot panel from any workspace view.
+* **Dedicated AI Chatbot Drawer**: Refactored [SideCommunication.tsx](file:///Users/deepamraval/Desktop/Deepam/Hackathons/odoo/TransitOps/src/components/layout/SideCommunication.tsx) into a dedicated, private chatbot panel. It responds to every user message, stores chat history locally in localStorage, provides visual suggestion prompts, and supports clearing chat logs.
+* **Universal Access**: Integrated the Chat Drawer toggle directly into [FleetShell.tsx](file:///Users/deepamraval/Desktop/Deepam/Hackathons/odoo/TransitOps/src/components/FleetShell.tsx) header actions, enabling instant access to the chatbot panel from any workspace view.
 
 ---
 
@@ -59,17 +60,17 @@ We have successfully resolved the Phase 2 redirect issue, fully implemented Phas
 * Executed `npm run build` successfully. All components compile with zero lint/TypeScript warnings:
 ```bash
 vite v8.0.16 building client environment for production...
-transforming...✓ 2562 modules transformed.
+transforming...✓ 2561 modules transformed.
 rendering chunks...
 computing gzip size...
 dist/index.html                          0.82 kB │ gzip:   0.44 kB
-dist/assets/index-CP6oSNsk.css          92.57 kB │ gzip:  14.53 kB
+dist/assets/index-C_qH-pl3.css          93.45 kB │ gzip:  14.59 kB
 dist/assets/purify.es-C77DcmJ7.js       26.09 kB │ gzip:  10.18 kB
-dist/assets/index.es-DtPalsJ_.js       151.38 kB │ gzip:  48.88 kB
-dist/assets/html2canvas-dZwBo_IN.js    199.56 kB │ gzip:  46.78 kB
-dist/assets/index-tnjTE1eR.js        1,241.68 kB │ gzip: 368.82 kB
+dist/assets/index.es-DDpo_X3K.js       151.38 kB │ gzip:  48.88 kB
+dist/assets/html2canvas-7MLQqa9X.js    199.56 kB │ gzip:  46.78 kB
+dist/assets/index-C3xxvtf7.js        1,241.87 kB │ gzip: 368.68 kB
 
-✓ built in 453ms
+✓ built in 492ms
 ```
 
 ### Database Seeding
