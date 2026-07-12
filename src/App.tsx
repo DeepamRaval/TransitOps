@@ -25,22 +25,7 @@ import { Reports } from './pages/owner/Reports';
 import { Settings } from './pages/owner/Settings';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 
-interface PlaceholderPageProps {
-  title: string;
-  desc: string;
-}
 
-function PlaceholderPage({ title, desc }: PlaceholderPageProps) {
-  return (
-    <div className="glass-card rounded-[2rem] p-10 border border-[var(--border)]">
-      <h1 className="text-4xl font-black tracking-tight mb-3">{title}</h1>
-      <p className="text-[var(--text-muted)] max-w-2xl mb-8">{desc}</p>
-      <div className="p-12 border border-dashed border-[var(--border)] rounded-2xl text-center text-[var(--text-muted)] font-medium">
-        This feature is planned for the next implementation phase.
-      </div>
-    </div>
-  );
-}
 
 function App() {
   return (

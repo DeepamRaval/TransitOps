@@ -7,7 +7,7 @@ export async function generateAIResponse(prompt: string, contextData: any): Prom
   let trips: any[] = [];
 
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('transitops_token');
     if (token) {
       const headers = { 'Authorization': `Bearer ${token}` };
       const [vehiclesRes, driversRes, tripsRes] = await Promise.all([
