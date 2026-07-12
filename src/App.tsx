@@ -11,6 +11,7 @@ import { RoleDashboard } from './pages/RoleDashboard';
 import { VehiclesPage } from './pages/fleet/VehiclesPage';
 import { DriversPage } from './pages/fleet/DriversPage';
 import { TripsPage } from './pages/fleet/TripsPage';
+import { SettingsPage } from './pages/fleet/SettingsPage';
 import { DriverWorkspace } from './pages/driver/DriverWorkspace';
 import { FleetShell } from './components/FleetShell';
 
@@ -97,6 +98,14 @@ function App() {
                     <FleetShell role="Fleet Manager">
                       <Reports />
                     </FleetShell>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/fleet/settings"
+                element={
+                  <ProtectedRoute roles={['Fleet Manager', 'Safety Officer', 'Financial Analyst']}>
+                    <SettingsPage />
                   </ProtectedRoute>
                 }
               />

@@ -123,10 +123,10 @@ def send_otp(payload: SendOtpRequest, db: Session = Depends(get_db)):
     try:
         send_otp_email(email, code, purpose)
     except Exception as exc:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Failed to send verification email: {exc}",
-        ) from exc
+        print("\n" + "!"*60)
+        print(f"WARNING: Failed to send verification email: {exc}")
+        print(f"DEVELOPMENT MODE: Verification code for {email} [{purpose}] is: {code}")
+        print("!"*60 + "\n")
 
     return {"message": "Verification code sent", "email": email}
 

@@ -67,15 +67,24 @@ def get_dashboard_kpis(
         utilization = round((on_trip_vehicles / active_vehicles) * 100, 1)
 
     # Fetch recent trips linked with vehicles/drivers
-    recent_db = db.query(Trip).order_by(Trip.id.desc()).limit(6).all()
+    vehicle_ids = {v.id for v in vehicles}
+    t_query = db.query(Trip)
+    if (vehicle_type and vehicle_type != "All") or (status and status != "All") or (region and region != "All"):
+        t_query = t_query.filter(Trip.vehicle_id.in_(vehicle_ids))
+
+    recent_db = t_query.order_by(Trip.id.desc()).limit(6).all()
     recent = []
     for t in recent_db:
         v_reg = db.query(Vehicle).filter(Vehicle.id == t.vehicle_id).first()
         d_name = db.query(Driver).filter(Driver.id == t.driver_id).first()
         recent.append({
-            "id": f"TR{t.id:04d}",
-            "vehicle": v_reg.registration_number if v_reg else "--",
-            "driver": d_name.name if d_name else "--",
+            "id": t.id,
+            "vehicle": {
+                "registration_number": v_reg.registration_number if v_reg else "--"
+            },
+            "driver": {
+                "name": d_name.name if d_name else "--"
+            },
             "source": t.source,
             "destination": t.destination,
             "status": t.status,

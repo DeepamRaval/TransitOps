@@ -1,20 +1,9 @@
 import { useEffect, useState } from 'react';
-import {
-  Activity,
-  Clock,
-  Route,
-  Truck,
-  Users,
-  Wrench,
-} from 'lucide-react';
+
 import { apiRequest } from '../api/client';
-import { tripsApi } from '../api/trips';
-import { vehiclesApi } from '../api/vehicles';
 import { FleetShell } from '../components/FleetShell';
 import { useAuth } from '../contexts/AuthContext';
 import { StatusBadge } from '../components/ui/StatusBadge';
-import type { Trip } from '../types/trip';
-import type { Vehicle } from '../types/fleet';
 import type { TransitOpsRole } from '../types/auth';
 
 interface DashboardKPIs {
@@ -25,6 +14,13 @@ interface DashboardKPIs {
   pending_trips: number;
   drivers_on_duty: number;
   fleet_utilization_percent: number;
+  recent_trips?: any[];
+  vehicle_status_counts: {
+    Available: number;
+    'On Trip': number;
+    'In Shop': number;
+    Retired: number;
+  };
 }
 
 export function RoleDashboard({ role }: { role: TransitOpsRole }) {
@@ -37,22 +33,39 @@ export function RoleDashboard({ role }: { role: TransitOpsRole }) {
     pending_trips: 0,
     drivers_on_duty: 0,
     fleet_utilization_percent: 0,
+    recent_trips: [],
+    vehicle_status_counts: {
+      Available: 0,
+      'On Trip': 0,
+      'In Shop': 0,
+      Retired: 0,
+    },
   });
-  const [recentTrips, setRecentTrips] = useState<Trip[]>([]);
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [recentTrips, setRecentTrips] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const padValue = (val: number) => String(val).padStart(2, '0');
+
+  // Filter states
+  const [vehicleType, setVehicleType] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [regionFilter, setRegionFilter] = useState('All');
 
   useEffect(() => {
     async function loadDashboardData() {
       try {
-        const [kpisData, tripsData, vehiclesData] = await Promise.all([
-          apiRequest<DashboardKPIs>('/api/dashboard/kpis'),
-          tripsApi.list(),
-          vehiclesApi.list(),
-        ]);
+        setLoading(true);
+        const params = new URLSearchParams();
+        if (vehicleType !== 'All') params.set('vehicle_type', vehicleType);
+        if (statusFilter !== 'All') params.set('status', statusFilter);
+        if (regionFilter !== 'All') params.set('region', regionFilter);
+
+        const qs = params.toString();
+        const url = `/api/dashboard/kpis${qs ? `?${qs}` : ''}`;
+
+        const kpisData = await apiRequest<DashboardKPIs>(url);
         setKpis(kpisData);
-        setRecentTrips(tripsData.slice(0, 6)); // Display latest 6
-        setVehicles(vehiclesData);
+        setRecentTrips(kpisData.recent_trips || []);
       } catch (err) {
         console.error('Failed to load dashboard statistics', err);
       } finally {
@@ -60,18 +73,13 @@ export function RoleDashboard({ role }: { role: TransitOpsRole }) {
       }
     }
     void loadDashboardData();
-  }, []);
+  }, [vehicleType, statusFilter, regionFilter]);
 
   const username = user?.name || 'User';
 
-  // Calculate status progress counts
-  const totalVehiclesCount = vehicles.length;
-  const statusCounts = {
-    Available: vehicles.filter((v) => v.status === 'Available').length,
-    'On Trip': vehicles.filter((v) => v.status === 'On Trip').length,
-    'In Shop': vehicles.filter((v) => v.status === 'In Shop').length,
-    Retired: vehicles.filter((v) => v.status === 'Retired').length,
-  };
+  // Calculate status progress counts from filtered KPIs
+  const statusCounts = kpis.vehicle_status_counts;
+  const totalVehiclesCount = statusCounts.Available + statusCounts['On Trip'] + statusCounts['In Shop'] + statusCounts.Retired;
 
   const getPercentage = (count: number) => {
     if (totalVehiclesCount === 0) return 0;
@@ -107,83 +115,139 @@ export function RoleDashboard({ role }: { role: TransitOpsRole }) {
 
   return (
     <FleetShell role={role}>
-      <div className="mb-8">
-        <h1 className="text-3xl font-black tracking-tight text-[var(--text)]">Command Center</h1>
-        <p className="text-[var(--text-muted)] text-sm mt-1">Live fleet operations · {username}</p>
+      <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black tracking-tight text-[var(--text)]">Command Center</h1>
+          <p className="text-[var(--text-muted)] text-sm mt-1">Live fleet operations · {username}</p>
+        </div>
+
+        {/* Filters block */}
+        <div className="flex flex-col gap-1.5 shrink-0">
+          <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Filters</span>
+          <div className="flex flex-wrap gap-3">
+            {/* Vehicle Type select */}
+            <div className="relative">
+              <select
+                value={vehicleType}
+                onChange={(e) => setVehicleType(e.target.value)}
+                className="appearance-none bg-[var(--card)] border border-[var(--border)] rounded-xl px-4 py-2 pr-10 text-xs font-semibold text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-orange-500 cursor-pointer transition-all shadow-sm h-9"
+              >
+                <option value="All">Vehicle Type: All</option>
+                <option value="Van">Vehicle Type: Van</option>
+                <option value="Truck">Vehicle Type: Truck</option>
+                <option value="Sedan">Vehicle Type: Sedan</option>
+                <option value="Container">Vehicle Type: Container</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[var(--text-muted)]">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                </svg>
+              </div>
+            </div>
+
+            {/* Status select */}
+            <div className="relative">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="appearance-none bg-[var(--card)] border border-[var(--border)] rounded-xl px-4 py-2 pr-10 text-xs font-semibold text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-orange-500 cursor-pointer transition-all shadow-sm h-9"
+              >
+                <option value="All">Status: All</option>
+                <option value="Available">Status: Available</option>
+                <option value="On Trip">Status: On Trip</option>
+                <option value="In Shop">Status: In Shop</option>
+                <option value="Retired">Status: Retired</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[var(--text-muted)]">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                </svg>
+              </div>
+            </div>
+
+            {/* Region select */}
+            <div className="relative">
+              <select
+                value={regionFilter}
+                onChange={(e) => setRegionFilter(e.target.value)}
+                className="appearance-none bg-[var(--card)] border border-[var(--border)] rounded-xl px-4 py-2 pr-10 text-xs font-semibold text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-orange-500 cursor-pointer transition-all shadow-sm h-9"
+              >
+                <option value="All">Region: All</option>
+                <option value="North">Region: North</option>
+                <option value="South">Region: South</option>
+                <option value="East">Region: East</option>
+                <option value="West">Region: West</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[var(--text-muted)]">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {loading ? (
         <div className="py-20 text-center text-[var(--text-muted)]">Loading metrics…</div>
       ) : (
         <div className="space-y-6">
-          {/* Top Row: utilization and metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
-            {/* Fleet Utilization Card */}
-            <div className="lg:col-span-3 glass-card rounded-2xl border border-[var(--border)] p-6 bg-[var(--card)] flex flex-col justify-between min-h-[140px]">
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-orange-500 font-bold flex items-center gap-1.5">
-                  <Activity size={12} /> Fleet Utilization
-                </p>
-                <div className="text-6xl font-black text-orange-500 mt-2">
-                  {kpis.fleet_utilization_percent}%
-                </div>
-              </div>
-              <p className="text-xs text-[var(--text-muted)] mt-2">
-                Active vehicles running vs total in-service
-              </p>
+          {/* Top Row: All 7 metrics cards in a single responsive row */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+            {/* Active Vehicles */}
+            <div className="glass-card rounded-2xl border border-[var(--border)] border-l-4 border-l-blue-500 p-4 bg-[var(--card)] flex flex-col justify-between min-h-[105px]">
+              <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wide leading-tight">
+                Active Vehicles
+              </span>
+              <div className="text-3xl font-black text-[var(--text)] mt-2">{padValue(kpis.active_vehicles)}</div>
             </div>
 
-            {/* Metrics cards */}
-            <div className="lg:col-span-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-              <div className="glass-card rounded-2xl border border-[var(--border)] p-4 bg-[var(--card)] flex flex-col justify-between min-h-[140px]">
-                <div className="flex justify-between items-start">
-                  <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wide">
-                    Active Vehicles
-                  </span>
-                  <Truck size={14} className="text-[var(--text-muted)]" />
-                </div>
-                <div className="text-3xl font-black text-[var(--text)] mt-4">{kpis.active_vehicles}</div>
-              </div>
+            {/* Available Vehicles */}
+            <div className="glass-card rounded-2xl border border-[var(--border)] border-l-4 border-l-emerald-500 p-4 bg-[var(--card)] flex flex-col justify-between min-h-[105px]">
+              <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wide leading-tight">
+                Available Vehicles
+              </span>
+              <div className="text-3xl font-black text-[var(--text)] mt-2">{padValue(kpis.available_vehicles)}</div>
+            </div>
 
-              <div className="glass-card rounded-2xl border border-[var(--border)] p-4 bg-[var(--card)] flex flex-col justify-between min-h-[140px]">
-                <div className="flex justify-between items-start">
-                  <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wide">
-                    Available
-                  </span>
-                  <Users size={14} className="text-[var(--text-muted)]" />
-                </div>
-                <div className="text-3xl font-black text-[var(--text)] mt-4">{kpis.available_vehicles}</div>
-              </div>
+            {/* Vehicles In Maintenance */}
+            <div className="glass-card rounded-2xl border border-[var(--border)] border-l-4 border-l-orange-500 p-4 bg-[var(--card)] flex flex-col justify-between min-h-[105px]">
+              <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wide leading-tight">
+                Vehicles in Maintenance
+              </span>
+              <div className="text-3xl font-black text-[var(--text)] mt-2">{padValue(kpis.in_maintenance_vehicles)}</div>
+            </div>
 
-              <div className="glass-card rounded-2xl border border-[var(--border)] p-4 bg-[var(--card)] flex flex-col justify-between min-h-[140px]">
-                <div className="flex justify-between items-start">
-                  <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wide">
-                    In Maintenance
-                  </span>
-                  <Wrench size={14} className="text-[var(--text-muted)]" />
-                </div>
-                <div className="text-3xl font-black text-[var(--text)] mt-4">{kpis.in_maintenance_vehicles}</div>
-              </div>
+            {/* Active Trips */}
+            <div className="glass-card rounded-2xl border border-[var(--border)] border-l-4 border-l-blue-500 p-4 bg-[var(--card)] flex flex-col justify-between min-h-[105px]">
+              <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wide leading-tight">
+                Active Trips
+              </span>
+              <div className="text-3xl font-black text-[var(--text)] mt-2">{padValue(kpis.active_trips)}</div>
+            </div>
 
-              <div className="glass-card rounded-2xl border border-[var(--border)] p-4 bg-[var(--card)] flex flex-col justify-between min-h-[140px]">
-                <div className="flex justify-between items-start">
-                  <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wide">
-                    Active Trips
-                  </span>
-                  <Route size={14} className="text-[var(--text-muted)]" />
-                </div>
-                <div className="text-3xl font-black text-[var(--text)] mt-4">{kpis.active_trips}</div>
-              </div>
+            {/* Pending Trips */}
+            <div className="glass-card rounded-2xl border border-[var(--border)] border-l-4 border-l-blue-500 p-4 bg-[var(--card)] flex flex-col justify-between min-h-[105px]">
+              <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wide leading-tight">
+                Pending Trips
+              </span>
+              <div className="text-3xl font-black text-[var(--text)] mt-2">{padValue(kpis.pending_trips)}</div>
+            </div>
 
-              <div className="glass-card rounded-2xl border border-[var(--border)] p-4 bg-[var(--card)] flex flex-col justify-between min-h-[140px]">
-                <div className="flex justify-between items-start">
-                  <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wide">
-                    Pending Trips
-                  </span>
-                  <Clock size={14} className="text-[var(--text-muted)]" />
-                </div>
-                <div className="text-3xl font-black text-[var(--text)] mt-4">{kpis.pending_trips}</div>
-              </div>
+            {/* Drivers on Duty */}
+            <div className="glass-card rounded-2xl border border-[var(--border)] border-l-4 border-l-blue-500 p-4 bg-[var(--card)] flex flex-col justify-between min-h-[105px]">
+              <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wide leading-tight">
+                Drivers on Duty
+              </span>
+              <div className="text-3xl font-black text-[var(--text)] mt-2">{padValue(kpis.drivers_on_duty)}</div>
+            </div>
+
+            {/* Fleet Utilization */}
+            <div className="glass-card rounded-2xl border border-[var(--border)] border-l-4 border-l-emerald-500 p-4 bg-[var(--card)] flex flex-col justify-between min-h-[105px]">
+              <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wide leading-tight">
+                Fleet Utilization
+              </span>
+              <div className="text-3xl font-black text-[var(--text)] mt-2">{Math.round(kpis.fleet_utilization_percent)}%</div>
             </div>
           </div>
 
@@ -300,13 +364,7 @@ export function RoleDashboard({ role }: { role: TransitOpsRole }) {
                   </div>
                 </div>
 
-                {/* Drivers on Duty counter footer */}
-                <div className="border-t border-[var(--border)] mt-6 pt-4 flex justify-between items-center text-xs">
-                  <span className="text-[var(--text-muted)] uppercase tracking-wider font-bold">
-                    Drivers on Duty
-                  </span>
-                  <span className="font-bold text-orange-500">{kpis.drivers_on_duty}</span>
-                </div>
+                {/* Drivers on Duty counter footer removed to avoid duplication */}
               </div>
             </div>
           </div>

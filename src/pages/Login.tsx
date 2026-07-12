@@ -233,37 +233,27 @@ export function Login() {
       <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-[var(--accent)]/5 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-        {/* Left Sub-Column: Hero Truck Image */}
-        <div className="w-1/2 h-full relative">
-          <img 
-            src="/hero-truck.png" 
-            alt="TransitOps Fleet" 
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#09090b]/10" />
-        </div>
-
         {/* Right Sub-Column: Text Copy and Features */}
-        <div className="w-1/2 relative flex flex-col justify-between p-10 text-white">
-          <div className="absolute inset-0 animate-gradient opacity-95" style={{ background: 'linear-gradient(135deg, #0f766e, #0369a1, #1d4ed8, #312e81)' }} />
+        <div className="w-full relative flex flex-col justify-between p-10 text-white">
+          <div className="absolute inset-0 animate-gradient opacity-95" style={{ background: 'linear-gradient(135deg, #f97316, #ea580c, #c2410c, #7c2d12)' }} />
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
           
-          <div className="relative z-10 flex flex-col justify-between h-full">
+          <div className="relative z-10 flex flex-col h-full">
             <div className="flex items-center gap-3 mb-10 animate-fade-in-down">
               <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-xl flex items-center justify-center border border-white/20 shadow-2xl">
-                <Truck size={20} className="text-teal-200" />
+                <Truck size={20} className="text-orange-200" />
               </div>
               <div>
                 <span className="text-2xl font-black tracking-tight block">TransitOps</span>
-                <span className="text-[10px] font-medium tracking-widest uppercase opacity-60 text-teal-200">Smart Transport Operations</span>
+                <span className="text-[10px] font-medium tracking-widest uppercase opacity-60 text-orange-200">Smart Transport Operations</span>
               </div>
             </div>
 
-            <div className="space-y-8 animate-fade-in my-auto">
+            <div className="space-y-8 animate-fade-in mt-6">
               <div className="space-y-3">
                 <h1 className="text-4xl font-bold leading-tight tracking-tight">
                   Move smarter.<br />
-                  <span className="text-teal-200">Operate faster.</span>
+                  <span className="text-orange-200">Operate faster.</span>
                 </h1>
                 <p className="text-white/70 text-sm leading-relaxed">
                   Centralize fleet, driver, dispatch, maintenance, and expense management with role-based access built for logistics teams.
@@ -272,9 +262,9 @@ export function Login() {
 
               <div className="grid gap-4">
                 {[
-                  { icon: <Route size={18} className="text-teal-200" />, title: 'Dispatch Control', desc: 'Available vehicles and drivers ready.' },
-                  { icon: <Shield size={18} className="text-teal-200" />, title: 'Safety Compliance', desc: 'License validity and score monitoring.' },
-                  { icon: <BarChart3 size={18} className="text-teal-200" />, title: 'Operational Insights', desc: 'Fuel, maintenance, and ROI analytics.' },
+                  { icon: <Route size={18} className="text-orange-200" />, title: 'Dispatch Control', desc: 'Available vehicles and drivers ready.' },
+                  { icon: <Shield size={18} className="text-orange-200" />, title: 'Safety Compliance', desc: 'License validity and score monitoring.' },
+                  { icon: <BarChart3 size={18} className="text-orange-200" />, title: 'Operational Insights', desc: 'Fuel, maintenance, and ROI analytics.' },
                 ].map((item, i) => (
                   <div key={i} className="flex gap-3 p-3.5 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
                     <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center shrink-0">{item.icon}</div>
@@ -287,7 +277,7 @@ export function Login() {
               </div>
             </div>
 
-            <div className="mt-8 text-white/40 text-xs">© 2026 TransitOps</div>
+            <div className="mt-auto pt-8 text-white/40 text-xs">© 2026 TransitOps</div>
           </div>
         </div>
       </div>
