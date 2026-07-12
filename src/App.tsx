@@ -115,16 +115,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              <Route
-                path="/fleet/settings"
-                element={
-                  <ProtectedRoute roles={['Fleet Manager', 'Safety Officer', 'Financial Analyst', 'Driver']}>
-                    <FleetShell role="Fleet Manager">
-                      <PlaceholderPage title="Account Settings" desc="Configure your profile, change theme, manage notification settings, and set security rules." />
-                    </FleetShell>
-                  </ProtectedRoute>
-                }
-              />
 
               <Route
                 path="/driver"

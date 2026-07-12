@@ -7,7 +7,6 @@ import {
   LogOut,
   Moon,
   Route,
-  Settings,
   Sun,
   Truck,
   UserCircle,
@@ -78,7 +77,6 @@ export function FleetShell({ children, role }: FleetShellProps) {
     if (role === 'Driver') {
       return [
         { to: dashboardPath, label: 'Dashboard', icon: LayoutGrid },
-        { to: '/fleet/settings', label: 'Settings', icon: Settings },
       ];
     }
 
@@ -90,7 +88,6 @@ export function FleetShell({ children, role }: FleetShellProps) {
       { to: '/fleet/maintenance', label: 'Maintenance', icon: Wrench },
       { to: '/fleet/expenses', label: 'Fuel & Expenses', icon: Fuel },
       { to: '/fleet/analytics', label: 'Analytics', icon: BarChart3 },
-      { to: '/fleet/settings', label: 'Settings', icon: Settings },
     ];
   };
 
