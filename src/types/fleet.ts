@@ -16,6 +16,7 @@ export interface Vehicle {
 export interface Driver {
   id: number;
   name: string;
+  email: string;
   license_number: string;
   license_category: string;
   license_expiry_date: string;
@@ -47,6 +48,7 @@ export const emptyVehicleForm = (): VehicleFormData => ({
 
 export const emptyDriverForm = (): DriverFormData => ({
   name: '',
+  email: '',
   license_number: '',
   license_category: 'LMV',
   license_expiry_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),

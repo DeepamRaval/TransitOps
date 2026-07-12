@@ -9,14 +9,13 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const { user } = useAuth();
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-[var(--bg)] flex">
       <Sidebar />
       <main className="flex-1 ml-64 max-lg:ml-[72px] p-6 lg:p-8 transition-all duration-300 relative">
-        <TopBar onToggleChat={() => setIsChatOpen(!isChatOpen)} />
+        <TopBar />
         {children}
       </main>
       <SideCommunication isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />

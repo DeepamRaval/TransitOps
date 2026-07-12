@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { PageHeader } from '../../components/layout/PageHeader';
-import { Card, StatCard } from '../../components/ui/Card';
+import { StatCard } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { FileDown, RefreshCw } from 'lucide-react';
+import { FileDown, RefreshCw, DollarSign, Fuel, TrendingUp, Truck } from 'lucide-react';
 import { downloadReport } from '../../utils/pdf';
 
 export function Reports() {
@@ -45,38 +45,25 @@ export function Reports() {
     costliest_vehicles: [
       { name: "TRUCK-11", cost: 25000 },
       { name: "MINI-03", cost: 15000 },
-      { name: "VAN-05", cost: 5000 }
-    ]
-  };
-
-  const handleExport = (format: 'pdf' | 'excel') => {
-    const title = 'TransitOps Operational Analytics';
-    const headers = ['Metric', 'Value'];
-    const rows = [
-      ['Fuel Efficiency', report.fuel_efficiency],
-      ['Fleet Utilization', report.fleet_utilization_percent],
-      ['Total Operational Cost', `INR ${report.operational_cost}`],
-      ['Average Vehicle ROI', report.vehicle_roi_percent]
-    ];
-    
-    // Add costliest vehicles to the report
-    report.costliest_vehicles.forEach((v: any) => {
-      rows.push([`Operational Cost (${v.name})`, `INR ${v.cost.toLocaleString('en-IN')}`]);
-    });
-
-    downloadReport(title, headers, rows, format);
+    fuel_efficiency: '0 km/L',
+    fleet_utilization_percent: '0%',
+    operational_cost: 0,
+    vehicle_roi_percent: '0%',
+    monthly_analytics: [],
+    vehicles_data: [],
+    drivers_data: []
   };
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Reports & Analytics"
+        title="Fleet Operations Analytics"
         subtitle="Consolidated fleet operations reports and profitability analysis"
         showBack={false}
         action={
           <div className="flex gap-2">
-            <Button onClick={() => handleExport('excel')} className="glow-primary flex items-center gap-2">
-              <FileDown size={16} /> Export CSV
+            <Button onClick={() => fetchAnalytics()} variant="outline" className="flex items-center gap-2">
+              <RefreshCw size={16} /> Refresh
             </Button>
             <Button onClick={() => handleExport('pdf')} className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2">
               <FileDown size={16} /> Export PDF
@@ -94,10 +81,10 @@ export function Reports() {
 
       {/* KPI Cards Row */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <StatCard title="Fuel Efficiency" value={report.fuel_efficiency} color="bg-blue-500/10" />
-        <StatCard title="Fleet Utilization" value={report.fleet_utilization_percent} color="bg-indigo-500/10" />
-        <StatCard title="Operational Cost" value={`₹${report.operational_cost}`} color="bg-amber-500/10" />
-        <StatCard title="Vehicle ROI" value={report.vehicle_roi_percent} color="bg-green-500/10" />
+        <StatCard title="Fuel Efficiency" value={report.fuel_efficiency} icon={<Fuel size={18} className="text-blue-500" />} color="bg-blue-500/10" />
+        <StatCard title="Fleet Utilization" value={report.fleet_utilization_percent} icon={<Truck size={18} className="text-indigo-500" />} color="bg-indigo-500/10" />
+        <StatCard title="Operational Cost" value={`₹${report.operational_cost}`} icon={<DollarSign size={18} className="text-amber-500" />} color="bg-amber-500/10" />
+        <StatCard title="Vehicle ROI" value={report.vehicle_roi_percent} icon={<TrendingUp size={18} className="text-green-500" />} color="bg-green-500/10" />
       </div>
 
       {/* Formula reference indicator */}

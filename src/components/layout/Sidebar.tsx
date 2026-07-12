@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, CalendarOff, BarChart3,
+  LayoutDashboard, Users, BarChart3,
   Settings, LogOut, Building2, ChevronLeft, ChevronRight,
-  ListTodo, Navigation, Wrench, DollarSign
+  Navigation, Wrench, DollarSign
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';

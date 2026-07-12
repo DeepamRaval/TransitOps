@@ -1,12 +1,15 @@
+import asyncio
 from contextlib import asynccontextmanager
 from datetime import date
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import inspect, text
 
 from .database import Base, SessionLocal, engine
 from . import models
 from .routers import auth, dashboard, drivers, expenses, maintenance, reports, trips, vehicles
 from .seed import seed_all
+from .services.license_reminders import run_license_reminder_scheduler
 
 def seed_db(db):
     try:
@@ -119,15 +122,50 @@ def seed_db(db):
     except Exception as e:
         print(f"Error seeding database: {e}")
 
+def ensure_compatible_schema() -> None:
+    inspector = inspect(engine)
+    if "drivers" not in inspector.get_table_names():
+        return
+
+    driver_columns = {column["name"] for column in inspector.get_columns("drivers")}
+    with engine.begin() as conn:
+        if "email" not in driver_columns:
+            conn.execute(text("ALTER TABLE drivers ADD COLUMN email VARCHAR(255)"))
+
+        rows = conn.execute(text("SELECT id FROM drivers WHERE email IS NULL OR email = ''")).fetchall()
+        for row in rows:
+            driver_id = row[0]
+            conn.execute(
+                text("UPDATE drivers SET email = :email WHERE id = :driver_id"),
+                {"email": f"driver-{driver_id}@placeholder.transitops.dev", "driver_id": driver_id},
+            )
+        legacy_rows = conn.execute(text("SELECT id FROM drivers WHERE email LIKE '%@transitops.local'")).fetchall()
+        for row in legacy_rows:
+            driver_id = row[0]
+            conn.execute(
+                text("UPDATE drivers SET email = :email WHERE id = :driver_id"),
+                {"email": f"driver-{driver_id}@placeholder.transitops.dev", "driver_id": driver_id},
+            )
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     Base.metadata.create_all(bind=engine)
+    ensure_compatible_schema()
     db = SessionLocal()
     try:
         seed_all(db)
     finally:
         db.close()
-    yield
+    reminder_task = asyncio.create_task(run_license_reminder_scheduler())
+    try:
+        yield
+    finally:
+        reminder_task.cancel()
+        try:
+            await reminder_task
+        except asyncio.CancelledError:
+            pass
 
 app = FastAPI(
     title="TransitOps API Gateway",

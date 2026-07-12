@@ -68,6 +68,7 @@ export function DriversPage({ role }: DriversPageProps) {
     setEditing(driver);
     setForm({
       name: driver.name,
+      email: driver.email,
       license_number: driver.license_number,
       license_category: driver.license_category,
       license_expiry_date: driver.license_expiry_date,
@@ -186,6 +187,7 @@ export function DriversPage({ role }: DriversPageProps) {
             <thead>
               <tr className="text-left text-[var(--text-muted)] border-b border-[var(--border)] bg-[var(--card)]/50">
                 <th className="px-4 py-3 font-semibold">Name</th>
+                <th className="px-4 py-3 font-semibold">Email</th>
                 <th className="px-4 py-3 font-semibold">License</th>
                 <th className="px-4 py-3 font-semibold">Category</th>
                 <th className="px-4 py-3 font-semibold">Expiry</th>
@@ -197,13 +199,14 @@ export function DriversPage({ role }: DriversPageProps) {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={8} className="px-4 py-10 text-center text-[var(--text-muted)]">Loading…</td></tr>
+                <tr><td colSpan={9} className="px-4 py-10 text-center text-[var(--text-muted)]">Loading...</td></tr>
               ) : drivers.length === 0 ? (
-                <tr><td colSpan={8} className="px-4 py-10 text-center text-[var(--text-muted)]">No drivers found.</td></tr>
+                <tr><td colSpan={9} className="px-4 py-10 text-center text-[var(--text-muted)]">No drivers found.</td></tr>
               ) : (
                 drivers.map((d) => (
                   <tr key={d.id} className="border-b border-[var(--border)]/60 hover:bg-[var(--primary)]/5 transition-colors">
                     <td className="px-4 py-3 font-semibold">{d.name}</td>
+                    <td className="px-4 py-3 text-xs">{d.email}</td>
                     <td className="px-4 py-3 font-mono text-xs">{d.license_number}</td>
                     <td className="px-4 py-3">{d.license_category}</td>
                     <td className="px-4 py-3">{d.license_expiry_date}</td>
@@ -239,6 +242,7 @@ export function DriversPage({ role }: DriversPageProps) {
       <Modal isOpen={modalOpen} onClose={() => !saving && setModalOpen(false)} title={editing ? 'Edit Driver' : 'Add Driver'} size="lg">
         <div className="grid sm:grid-cols-2 gap-4">
           <Input label="Full Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+          <Input label="Email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
           <Input label="License Number" value={form.license_number} onChange={(e) => setForm({ ...form, license_number: e.target.value })} required />
           <Select label="Category" value={form.license_category} onChange={(e) => setForm({ ...form, license_category: e.target.value })} options={LICENSE_CATEGORIES.map((c) => ({ value: c, label: c }))} />
           <Input label="License Expiry" type="date" value={form.license_expiry_date} onChange={(e) => setForm({ ...form, license_expiry_date: e.target.value })} required />

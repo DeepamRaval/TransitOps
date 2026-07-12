@@ -59,6 +59,7 @@ DEMO_VEHICLES = [
 DEMO_DRIVERS = [
     {
         "name": "Alex Kumar",
+        "email": "alex.kumar@transitops.dev",
         "license_number": "DL-0420190012345",
         "license_category": "LMV",
         "license_expiry_date": date.today() + timedelta(days=365),
@@ -68,6 +69,7 @@ DEMO_DRIVERS = [
     },
     {
         "name": "Priya Nair",
+        "email": "priya.nair@transitops.dev",
         "license_number": "KA-0520180098765",
         "license_category": "HMV",
         "license_expiry_date": date.today() + timedelta(days=18),
@@ -77,6 +79,7 @@ DEMO_DRIVERS = [
     },
     {
         "name": "Rahul Singh",
+        "email": "rahul.singh@transitops.dev",
         "license_number": "MH-0320170045678",
         "license_category": "HGV",
         "license_expiry_date": date.today() - timedelta(days=12),
@@ -86,6 +89,7 @@ DEMO_DRIVERS = [
     },
     {
         "name": "Meera Joshi",
+        "email": "meera.joshi@transitops.dev",
         "license_number": "GJ-0620200032109",
         "license_category": "LMV",
         "license_expiry_date": date.today() + timedelta(days=200),
@@ -95,6 +99,7 @@ DEMO_DRIVERS = [
     },
     {
         "name": "Jordan Lee",
+        "email": "jordan.lee@transitops.dev",
         "license_number": "MH-1220210045678",
         "license_category": "LMV",
         "license_expiry_date": date.today() + timedelta(days=120),
@@ -134,7 +139,10 @@ def seed_demo_fleet(db: Session) -> None:
         db.add(Vehicle(**demo))
 
     for demo in DEMO_DRIVERS:
-        if db.query(Driver).filter(Driver.license_number == demo["license_number"]).first():
+        existing = db.query(Driver).filter(Driver.license_number == demo["license_number"]).first()
+        if existing:
+            if not existing.email:
+                existing.email = demo["email"]
             continue
         db.add(Driver(**demo))
 

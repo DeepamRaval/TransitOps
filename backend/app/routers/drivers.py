@@ -9,6 +9,7 @@ from ..dependencies import get_current_user, require_roles
 from ..enums import DRIVER_STATUSES
 from ..models import Driver, User
 from ..schemas import DriverCreate, DriverResponse, DriverUpdate
+from ..services.license_reminders import send_due_license_reminders
 
 router = APIRouter()
 
@@ -35,6 +36,14 @@ def _apply_driver_filters(query, status: Optional[str], expiring_within_days: Op
     return query
 
 
+def _send_due_license_reminders_safely(db: Session) -> None:
+    try:
+        send_due_license_reminders(db)
+    except Exception as exc:
+        db.rollback()
+        print(f"Failed to send driver license expiry reminder after driver save: {exc}")
+
+
 @router.get("/", response_model=list[DriverResponse])
 def list_drivers(
     _: Authenticated,
@@ -59,6 +68,7 @@ def create_driver(payload: DriverCreate, _: FleetManager, db: Annotated[Session,
     db.add(driver)
     db.commit()
     db.refresh(driver)
+    _send_due_license_reminders_safely(db)
     return DriverResponse.from_orm_with_flags(driver)
 
 
@@ -75,6 +85,7 @@ def update_driver(
         setattr(driver, field, value)
     db.commit()
     db.refresh(driver)
+    _send_due_license_reminders_safely(db)
     return DriverResponse.from_orm_with_flags(driver)
 
 

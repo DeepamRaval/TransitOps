@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Wrench, CheckCircle, Trash2, Calendar, DollarSign } from 'lucide-react';
+import { Plus, Wrench, CheckCircle, Trash2, Calendar } from 'lucide-react';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
@@ -287,7 +287,7 @@ export function Maintenance({ cardTheme = 'default' }: MaintenanceProps) {
                     <td className="p-4 text-right">
                       <div className="flex justify-end gap-2">
                         {log.status === 'Active' ? (
-                          <Button size="xs" className="bg-amber-600 hover:bg-amber-700 text-white" onClick={() => {
+                          <Button size="sm" className="bg-amber-600 hover:bg-amber-700 text-white" onClick={() => {
                             setSelectedLog(log);
                             setCloseForm(prev => ({ ...prev, cost: String(log.cost) }));
                             setShowCloseModal(true);
@@ -295,7 +295,7 @@ export function Maintenance({ cardTheme = 'default' }: MaintenanceProps) {
                             <CheckCircle size={12} className="mr-1" /> Close Log
                           </Button>
                         ) : (
-                          <Button variant="outline" size="xs" className="text-red-500 border-red-500/20 hover:bg-red-500/10" onClick={() => handleDelete(log.id)}>
+                          <Button variant="outline" size="sm" className="text-red-500 border-red-500/20 hover:bg-red-500/10" onClick={() => handleDelete(log.id)}>
                             <Trash2 size={12} className="mr-1" /> Delete
                           </Button>
                         )}

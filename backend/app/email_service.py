@@ -35,3 +35,35 @@ If you did not request this, you can safely ignore this email.
         server.starttls()
         server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
         server.sendmail(settings.SMTP_FROM, to_email, msg.as_string())
+
+
+def send_license_expiry_reminder(
+    to_email: str,
+    driver_name: str,
+    license_number: str,
+    expiry_date: str,
+    reminder_label: str,
+) -> None:
+    if not settings.SMTP_PASSWORD:
+        raise RuntimeError("SMTP_PASSWORD is not configured")
+
+    subject = f"TransitOps - Driver license expires in {reminder_label}"
+    body = f"""Hello {driver_name},
+
+This is a reminder that your driver's license ({license_number}) expires on {expiry_date}.
+
+Please renew it before the expiry date and update your TransitOps profile so dispatch eligibility is not affected.
+
+- TransitOps Smart Transport Operations
+"""
+
+    msg = MIMEMultipart()
+    msg["From"] = settings.SMTP_FROM
+    msg["To"] = to_email
+    msg["Subject"] = subject
+    msg.attach(MIMEText(body, "plain"))
+
+    with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
+        server.starttls()
+        server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+        server.sendmail(settings.SMTP_FROM, to_email, msg.as_string())

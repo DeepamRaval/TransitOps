@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Date, DateTime, Float, ForeignKey, Integer, String, func
+from sqlalchemy import Boolean, Column, Date, DateTime, Float, ForeignKey, Integer, String, UniqueConstraint, func
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -48,6 +48,7 @@ class Driver(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
+    email = Column(String(255), index=True, nullable=True)
     license_number = Column(String(100), nullable=False)
     license_category = Column(String(50), nullable=False)
     license_expiry_date = Column(Date, nullable=False)
@@ -56,6 +57,18 @@ class Driver(Base):
     status = Column(String(50), default="Available")
 
     trips = relationship("Trip", back_populates="driver")
+
+class LicenseReminderLog(Base):
+    __tablename__ = "license_reminder_logs"
+    __table_args__ = (
+        UniqueConstraint("driver_id", "license_expiry_date", "reminder_key", name="uq_license_reminder"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    driver_id = Column(Integer, ForeignKey("drivers.id"), nullable=False)
+    license_expiry_date = Column(Date, nullable=False)
+    reminder_key = Column(String(32), nullable=False)
+    sent_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 class Trip(Base):
     __tablename__ = "trips"

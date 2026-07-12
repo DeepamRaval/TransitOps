@@ -88,6 +88,7 @@ def _license_flags(expiry: date) -> tuple[bool, bool]:
 
 class DriverBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
+    email: EmailStr
     license_number: str = Field(..., min_length=1, max_length=100)
     license_category: str = Field(..., min_length=1, max_length=50)
     license_expiry_date: date
@@ -100,6 +101,7 @@ class DriverCreate(DriverBase):
 
 class DriverUpdate(BaseModel):
     name: Optional[str] = Field(default=None, min_length=1, max_length=255)
+    email: Optional[EmailStr] = None
     license_number: Optional[str] = Field(default=None, min_length=1, max_length=100)
     license_category: Optional[str] = Field(default=None, min_length=1, max_length=50)
     license_expiry_date: Optional[date] = None
@@ -121,6 +123,7 @@ class DriverResponse(DriverBase):
         return cls(
             id=driver.id,
             name=driver.name,
+            email=driver.email,
             license_number=driver.license_number,
             license_category=driver.license_category,
             license_expiry_date=driver.license_expiry_date,

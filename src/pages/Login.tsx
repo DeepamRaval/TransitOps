@@ -123,7 +123,7 @@ export function Login() {
       
       // Request verification code
       await authApi.sendOtp(form.email, 'register');
-      setStep('otp'); // Show the verification code input screen
+      setStep('verify'); // Show the verification code input screen
     } catch (err) {
       setError(err instanceof ApiError ? err.message : (err instanceof Error ? err.message : 'Failed to send verification code'));
     } finally {
