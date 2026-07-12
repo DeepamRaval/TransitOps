@@ -29,10 +29,13 @@ export function Reports() {
   }, []);
 
   const report = data || {
-    fuel_efficiency: "8.4 km/l",
-    fleet_utilization_percent: "81%",
-    operational_cost: "34,070",
-    vehicle_roi_percent: "14.2%",
+    fuel_efficiency: '0 km/L',
+    fleet_utilization_percent: '0%',
+    operational_cost: 0,
+    vehicle_roi_percent: '0%',
+    monthly_analytics: [],
+    vehicles_data: [],
+    drivers_data: [],
     monthly_revenue: [
       { month: "Jan", revenue: 10000 },
       { month: "Feb", revenue: 15000 },
@@ -44,14 +47,28 @@ export function Reports() {
     ],
     costliest_vehicles: [
       { name: "TRUCK-11", cost: 25000 },
-      { name: "MINI-03", cost: 15000 },
-    fuel_efficiency: '0 km/L',
-    fleet_utilization_percent: '0%',
-    operational_cost: 0,
-    vehicle_roi_percent: '0%',
-    monthly_analytics: [],
-    vehicles_data: [],
-    drivers_data: []
+      { name: "MINI-03", cost: 15000 }
+    ]
+  };
+
+  const handleExport = (format: 'pdf' | 'excel') => {
+    const title = 'TransitOps Operational Analytics';
+    const headers = ['Metric', 'Value'];
+    const rows = [
+      ['Fuel Efficiency', report.fuel_efficiency],
+      ['Fleet Utilization', report.fleet_utilization_percent],
+      ['Total Operational Cost', `INR ${report.operational_cost}`],
+      ['Average Vehicle ROI', report.vehicle_roi_percent]
+    ];
+    
+    // Add costliest vehicles to the report
+    if (report.costliest_vehicles) {
+      report.costliest_vehicles.forEach((v: any) => {
+        rows.push([`Operational Cost (${v.name})`, `INR ${v.cost.toLocaleString('en-IN')}`]);
+      });
+    }
+
+    downloadReport(title, headers, rows, format);
   };
 
   return (

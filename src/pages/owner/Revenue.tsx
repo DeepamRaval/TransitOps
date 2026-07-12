@@ -3,7 +3,7 @@ import { PageHeader } from '../../components/layout/PageHeader';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
-import { Plus, Fuel, DollarSign, Calendar, RefreshCw } from 'lucide-react';
+import { Plus, Fuel, RefreshCw } from 'lucide-react';
 
 export function Revenue() {
   const [data, setData] = useState<any>(null);

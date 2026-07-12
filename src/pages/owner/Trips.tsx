@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Navigation, CheckCircle, XCircle, Trash2, MapPin, Milestone, Fuel } from 'lucide-react';
+import { Plus, Navigation, CheckCircle, XCircle, Trash2, MapPin } from 'lucide-react';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
