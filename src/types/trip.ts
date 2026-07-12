@@ -1,4 +1,4 @@
-export type TripStatus = 'Draft' | 'Scheduled' | 'In Transit' | 'Completed' | 'Cancelled';
+export type TripStatus = 'Draft' | 'Dispatched' | 'Completed' | 'Cancelled';
 
 export interface Trip {
   id: number;
@@ -34,7 +34,7 @@ export interface TripFormData {
   status: TripStatus;
 }
 
-export const TRIP_STATUSES: TripStatus[] = ['Draft', 'Scheduled', 'In Transit', 'Completed', 'Cancelled'];
+export const TRIP_STATUSES: TripStatus[] = ['Draft', 'Dispatched', 'Completed', 'Cancelled'];
 
 export const emptyTripForm = (): TripFormData => ({
   source: '',

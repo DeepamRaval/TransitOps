@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { AlertTriangle, Pencil, Plus, RefreshCw, Trash2, Users } from 'lucide-react';
+import { AlertTriangle, Pencil, Plus, RefreshCw, Trash2, Users, User, Phone } from 'lucide-react';
 import { ApiError } from '../../api/client';
 import { driversApi } from '../../api/drivers';
 import { FleetShell } from '../../components/FleetShell';
@@ -37,6 +37,7 @@ export function DriversPage({ role }: DriversPageProps) {
   const [form, setForm] = useState<DriverFormData>(emptyDriverForm());
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Driver | null>(null);
+  const [viewingDriver, setViewingDriver] = useState<Driver | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -187,6 +188,7 @@ export function DriversPage({ role }: DriversPageProps) {
             <thead>
               <tr className="text-left text-[var(--text-muted)] border-b border-[var(--border)] bg-[var(--card)]/50">
                 <th className="px-4 py-3 font-semibold">Name</th>
+                <th className="px-4 py-3 font-semibold">Profile</th>
                 <th className="px-4 py-3 font-semibold">Email</th>
                 <th className="px-4 py-3 font-semibold">License</th>
                 <th className="px-4 py-3 font-semibold">Category</th>
@@ -199,13 +201,22 @@ export function DriversPage({ role }: DriversPageProps) {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={9} className="px-4 py-10 text-center text-[var(--text-muted)]">Loading...</td></tr>
+                <tr><td colSpan={10} className="px-4 py-10 text-center text-[var(--text-muted)]">Loading...</td></tr>
               ) : drivers.length === 0 ? (
-                <tr><td colSpan={9} className="px-4 py-10 text-center text-[var(--text-muted)]">No drivers found.</td></tr>
+                <tr><td colSpan={10} className="px-4 py-10 text-center text-[var(--text-muted)]">No drivers found.</td></tr>
               ) : (
                 drivers.map((d) => (
                   <tr key={d.id} className="border-b border-[var(--border)]/60 hover:bg-[var(--primary)]/5 transition-colors">
                     <td className="px-4 py-3 font-semibold">{d.name}</td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => setViewingDriver(d)}
+                        className="p-1.5 rounded-lg bg-orange-500/10 text-orange-500 hover:bg-orange-500 hover:text-white transition-all flex items-center justify-center cursor-pointer"
+                        title="View Profile"
+                      >
+                        <User size={14} />
+                      </button>
+                    </td>
                     <td className="px-4 py-3 text-xs">{d.email}</td>
                     <td className="px-4 py-3 font-mono text-xs">{d.license_number}</td>
                     <td className="px-4 py-3">{d.license_category}</td>
@@ -264,6 +275,109 @@ export function DriversPage({ role }: DriversPageProps) {
           <div className="flex gap-3">
             <Button className="flex-1" onClick={() => void handleDelete()} disabled={saving}>{saving ? 'Deleting…' : 'Delete'}</Button>
             <Button variant="outline" className="flex-1" onClick={() => setDeleteTarget(null)} disabled={saving}>Cancel</Button>
+          </div>
+        </Modal>
+      )}
+
+      {viewingDriver && (
+        <Modal isOpen={!!viewingDriver} onClose={() => setViewingDriver(null)} title="Driver Profile" size="md">
+          <div className="flex flex-col items-center text-center pb-4 border-b border-[var(--border)] mb-4">
+            <div className={`w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-black shadow-lg bg-gradient-to-br ${
+              viewingDriver.status === 'Suspended'
+                ? 'from-rose-500 to-red-600'
+                : viewingDriver.safety_score >= 90
+                ? 'from-emerald-500 to-teal-600'
+                : 'from-orange-500 to-amber-600'
+            }`}>
+              {viewingDriver.name
+                .split(' ')
+                .map((n) => n[0])
+                .join('')
+                .toUpperCase()
+                .slice(0, 2)}
+            </div>
+            <h3 className="text-xl font-bold text-[var(--text)] mt-3">{viewingDriver.name}</h3>
+            <p className="text-xs text-[var(--text-muted)] mt-1">Driver ID: #{viewingDriver.id}</p>
+            <div className="mt-2">
+              <StatusBadge status={viewingDriver.status} />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <h4 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2">Performance Metrics</h4>
+              <div className="bg-[var(--card)]/60 border border-[var(--border)] rounded-xl p-3.5 flex items-center justify-between">
+                <div>
+                  <p className="text-[9px] text-[var(--text-muted)] font-medium">SAFETY RATING</p>
+                  <p className="text-2xl font-black tracking-tight mt-0.5 text-[var(--text)]">
+                    {viewingDriver.safety_score}%
+                  </p>
+                </div>
+                <div className="w-2/3 ml-4">
+                  <div className="h-2 w-full bg-[var(--border)]/50 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        viewingDriver.safety_score < 75
+                          ? 'bg-rose-500'
+                          : viewingDriver.safety_score < 90
+                          ? 'bg-amber-500'
+                          : 'bg-emerald-500'
+                      }`}
+                      style={{ width: `${viewingDriver.safety_score}%` }}
+                    />
+                  </div>
+                  <p className="text-[9px] text-right text-[var(--text-muted)] mt-1 font-semibold">
+                    {viewingDriver.safety_score < 75 ? 'Needs Review' : viewingDriver.safety_score < 90 ? 'Good' : 'Excellent'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2">License Details</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-[var(--card)]/40 border border-[var(--border)] rounded-xl p-3">
+                  <p className="text-[9px] text-[var(--text-muted)] font-medium">LICENSE NUMBER</p>
+                  <p className="text-xs text-[var(--text)] font-mono font-bold mt-1">{viewingDriver.license_number}</p>
+                </div>
+                <div className="bg-[var(--card)]/40 border border-[var(--border)] rounded-xl p-3">
+                  <p className="text-[9px] text-[var(--text-muted)] font-medium">CATEGORY</p>
+                  <p className="text-xs text-[var(--text)] font-bold mt-1">{viewingDriver.license_category}</p>
+                </div>
+                <div className="bg-[var(--card)]/40 border border-[var(--border)] rounded-xl p-3">
+                  <p className="text-[9px] text-[var(--text-muted)] font-medium">EXPIRY DATE</p>
+                  <p className="text-xs text-[var(--text)] font-semibold mt-1">{viewingDriver.license_expiry_date}</p>
+                </div>
+                <div className="bg-[var(--card)]/40 border border-[var(--border)] rounded-xl p-3">
+                  <p className="text-[9px] text-[var(--text-muted)] font-medium">VALIDITY STATUS</p>
+                  <div className="mt-1">
+                    {licenseWarning(viewingDriver)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2">Contact Details</h4>
+              <div className="bg-[var(--card)]/40 border border-[var(--border)] rounded-xl p-3 flex items-center justify-between">
+                <div>
+                  <p className="text-[9px] text-[var(--text-muted)] font-medium">MOBILE NUMBER</p>
+                  <p className="text-xs text-[var(--text)] font-bold mt-0.5">{viewingDriver.contact_number}</p>
+                </div>
+                <a
+                  href={`tel:${viewingDriver.contact_number}`}
+                  className="px-3.5 py-1.5 bg-orange-500 hover:bg-orange-600 transition-colors text-white font-bold text-xs rounded-xl shadow-md shadow-orange-500/10 flex items-center gap-1.5"
+                >
+                  <Phone size={12} /> Call
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 flex">
+            <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setViewingDriver(null)}>
+              Close Profile
+            </Button>
           </div>
         </Modal>
       )}

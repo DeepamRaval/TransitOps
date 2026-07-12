@@ -39,7 +39,7 @@ export function DriverWorkspace() {
     setSaving(true);
     setError('');
     try {
-      await tripsApi.update(tripId, { status: 'In Transit' });
+      await tripsApi.update(tripId, { status: 'Dispatched' });
       await loadTrips();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Failed to start trip');
@@ -74,8 +74,8 @@ export function DriverWorkspace() {
   };
 
   // Classify trips
-  const activeTrip = trips.find((t) => t.status === 'In Transit');
-  const upcomingTrips = trips.filter((t) => t.status === 'Scheduled');
+  const activeTrip = trips.find((t) => t.status === 'Dispatched');
+  const upcomingTrips = trips.filter((t) => t.status === 'Draft');
   const pastTrips = trips.filter((t) => t.status === 'Completed' || t.status === 'Cancelled');
 
   return (

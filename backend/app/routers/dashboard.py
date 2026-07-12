@@ -55,8 +55,8 @@ def get_dashboard_kpis(
     in_maintenance = len([v for v in vehicles if v.status == "In Shop"])
 
     trips = db.query(Trip).all()
-    active_trips = len([t for t in trips if t.status in ["In Transit"]])
-    pending_trips = len([t for t in trips if t.status == "Scheduled"])
+    active_trips = len([t for t in trips if t.status in ["Dispatched"]])
+    pending_trips = len([t for t in trips if t.status == "Draft"])
 
     drivers = db.query(Driver).all()
     drivers_on_duty = len([d for d in drivers if d.status in ["Available", "On Trip"]])

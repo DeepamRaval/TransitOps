@@ -185,7 +185,7 @@ def seed_demo_trips(db: Session) -> None:
             "actual_distance": None,
             "fuel_consumed": None,
             "revenue": 35000.0,
-            "status": "In Transit"
+            "status": "Dispatched"
         },
         {
             "source": "Delhi Cargo Terminal",
@@ -197,7 +197,7 @@ def seed_demo_trips(db: Session) -> None:
             "actual_distance": None,
             "fuel_consumed": None,
             "revenue": 8000.0,
-            "status": "Scheduled"
+            "status": "Draft"
         }
     ]
 
@@ -213,8 +213,8 @@ def seed_demo_trips(db: Session) -> None:
         trip = Trip(**demo)
         db.add(trip)
 
-        # Sync vehicle/driver statuses for the "In Transit" trip
-        if demo["status"] == "In Transit":
+        # Sync vehicle/driver statuses for the "Dispatched" trip
+        if demo["status"] == "Dispatched":
             honda.status = "On Trip"
             jordan.status = "On Trip"
 

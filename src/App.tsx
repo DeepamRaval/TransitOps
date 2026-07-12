@@ -90,7 +90,7 @@ function App() {
                 element={
                   <ProtectedRoute roles={['Fleet Manager', 'Safety Officer']}>
                     <FleetShell role="Fleet Manager">
-                      <PlaceholderPage title="Maintenance Center" desc="Schedule inspections, track repairs, and manage spare parts inventory." />
+                      <Maintenance />
                     </FleetShell>
                   </ProtectedRoute>
                 }
