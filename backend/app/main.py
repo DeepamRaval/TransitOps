@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .database import Base, SessionLocal, engine
 from .routers import auth, dashboard, drivers, expenses, maintenance, reports, trips, vehicles
-from .seed import seed_demo_users
+from .seed import seed_all
 
 
 @asynccontextmanager
@@ -13,7 +13,7 @@ async def lifespan(_: FastAPI):
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
-        seed_demo_users(db)
+        seed_all(db)
     finally:
         db.close()
     yield

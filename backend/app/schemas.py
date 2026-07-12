@@ -1,6 +1,8 @@
-from pydantic import BaseModel, EmailStr
-from datetime import date, datetime
+from pydantic import BaseModel, EmailStr, Field
+from datetime import date, datetime, timedelta
 from typing import Optional, List
+
+from .enums import DRIVER_STATUSES, VEHICLE_STATUSES, VehicleStatus, DriverStatus, TripStatus
 
 # --- User & Auth Schemas ---
 class UserBase(BaseModel):
@@ -49,17 +51,27 @@ class TokenData(BaseModel):
 
 # --- Vehicle Schemas ---
 class VehicleBase(BaseModel):
-    registration_number: str
-    name_model: str
-    type: str
-    max_load_capacity: float
-    odometer: Optional[float] = 0.0
-    acquisition_cost: float
-    status: Optional[str] = "Available"
-    region: Optional[str] = None
+    registration_number: str = Field(..., min_length=1, max_length=100)
+    name_model: str = Field(..., min_length=1, max_length=255)
+    type: str = Field(..., min_length=1, max_length=100)
+    max_load_capacity: float = Field(..., gt=0)
+    odometer: float = Field(default=0.0, ge=0)
+    acquisition_cost: float = Field(..., ge=0)
+    status: VehicleStatus = "Available"
+    region: Optional[str] = Field(default=None, max_length=100)
 
 class VehicleCreate(VehicleBase):
     pass
+
+class VehicleUpdate(BaseModel):
+    registration_number: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    name_model: Optional[str] = Field(default=None, min_length=1, max_length=255)
+    type: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    max_load_capacity: Optional[float] = Field(default=None, gt=0)
+    odometer: Optional[float] = Field(default=None, ge=0)
+    acquisition_cost: Optional[float] = Field(default=None, ge=0)
+    status: Optional[VehicleStatus] = None
+    region: Optional[str] = Field(default=None, max_length=100)
 
 class VehicleResponse(VehicleBase):
     id: int
@@ -69,43 +81,94 @@ class VehicleResponse(VehicleBase):
 
 
 # --- Driver Schemas ---
+def _license_flags(expiry: date) -> tuple[bool, bool]:
+    today = date.today()
+    return expiry < today, expiry <= today + timedelta(days=30)
+
+
 class DriverBase(BaseModel):
-    name: str
-    license_number: str
-    license_category: str
+    name: str = Field(..., min_length=1, max_length=255)
+    license_number: str = Field(..., min_length=1, max_length=100)
+    license_category: str = Field(..., min_length=1, max_length=50)
     license_expiry_date: date
-    contact_number: str
-    safety_score: Optional[float] = 100.0
-    status: Optional[str] = "Available"
+    contact_number: str = Field(..., min_length=1, max_length=50)
+    safety_score: float = Field(default=100.0, ge=0, le=100)
+    status: DriverStatus = "Available"
 
 class DriverCreate(DriverBase):
     pass
 
+class DriverUpdate(BaseModel):
+    name: Optional[str] = Field(default=None, min_length=1, max_length=255)
+    license_number: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    license_category: Optional[str] = Field(default=None, min_length=1, max_length=50)
+    license_expiry_date: Optional[date] = None
+    contact_number: Optional[str] = Field(default=None, min_length=1, max_length=50)
+    safety_score: Optional[float] = Field(default=None, ge=0, le=100)
+    status: Optional[DriverStatus] = None
+
 class DriverResponse(DriverBase):
     id: int
+    license_expired: bool = False
+    license_expiring_soon: bool = False
 
     class Config:
         from_attributes = True
 
+    @classmethod
+    def from_orm_with_flags(cls, driver) -> "DriverResponse":
+        expired, expiring = _license_flags(driver.license_expiry_date)
+        return cls(
+            id=driver.id,
+            name=driver.name,
+            license_number=driver.license_number,
+            license_category=driver.license_category,
+            license_expiry_date=driver.license_expiry_date,
+            contact_number=driver.contact_number,
+            safety_score=driver.safety_score,
+            status=driver.status,
+            license_expired=expired,
+            license_expiring_soon=expiring and not expired,
+        )
+
 
 # --- Trip Schemas ---
 class TripBase(BaseModel):
-    source: str
-    destination: str
+    source: str = Field(..., min_length=1, max_length=255)
+    destination: str = Field(..., min_length=1, max_length=255)
     vehicle_id: int
     driver_id: int
-    cargo_weight: float
-    planned_distance: float
-    actual_distance: Optional[float] = None
-    fuel_consumed: Optional[float] = None
-    revenue: Optional[float] = 0.0
-    status: Optional[str] = "Draft"
+    cargo_weight: float = Field(..., gt=0)
+    planned_distance: float = Field(..., gt=0)
+    actual_distance: Optional[float] = Field(default=None, ge=0)
+    fuel_consumed: Optional[float] = Field(default=None, ge=0)
+    revenue: float = Field(default=0.0, ge=0)
+    status: TripStatus = "Draft"
 
 class TripCreate(TripBase):
     pass
 
+class TripUpdate(BaseModel):
+    source: Optional[str] = Field(default=None, min_length=1, max_length=255)
+    destination: Optional[str] = Field(default=None, min_length=1, max_length=255)
+    vehicle_id: Optional[int] = None
+    driver_id: Optional[int] = None
+    cargo_weight: Optional[float] = Field(default=None, gt=0)
+    planned_distance: Optional[float] = Field(default=None, gt=0)
+    actual_distance: Optional[float] = Field(default=None, ge=0)
+    fuel_consumed: Optional[float] = Field(default=None, ge=0)
+    revenue: Optional[float] = Field(default=None, ge=0)
+    status: Optional[TripStatus] = None
+
+class TripStatusUpdate(BaseModel):
+    status: TripStatus
+    actual_distance: Optional[float] = Field(default=None, ge=0)
+    fuel_consumed: Optional[float] = Field(default=None, ge=0)
+
 class TripResponse(TripBase):
     id: int
+    vehicle: Optional[VehicleResponse] = None
+    driver: Optional[DriverResponse] = None
 
     class Config:
         from_attributes = True

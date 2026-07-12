@@ -21,18 +21,18 @@
 }
 
 .dark {
-  --bg: #0f172a;
-  --card: #1e293b;
-  --p: #7c3aed;
-  --s: #8b5cf6;
+  --bg: #0c0c0e;
+  --card: #121214;
+  --p: #f97316;
+  --s: #ea580c;
   --primary: var(--p);
   --secondary: var(--s);
-  --accent: #a855f7;
-  --text: #f8fafc;
-  --text-muted: #94a3b8;
-  --border: #334155;
-  --glass: rgba(30, 41, 59, 0.8);
-  --shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  --accent: #f97316;
+  --text: #f3f4f6;
+  --text-muted: #8f9099;
+  --border: #1f1f23;
+  --glass: rgba(18, 18, 20, 0.9);
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
   --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
 }
 
