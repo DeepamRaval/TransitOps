@@ -25,19 +25,19 @@
 }
 
 .dark {
-  --bg: #0c0c0e;
-  --card: #121214;
+  --bg: #09090b;
+  --card: #18181b;
   --p: #f97316;
   --s: #ea580c;
   --primary: var(--p);
   --secondary: var(--s);
   --accent: #f97316;
-  --text: #f3f4f6;
-  --text-muted: #8f9099;
-  --border: #1f1f23;
-  --glass: rgba(18, 18, 20, 0.9);
-  --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-  --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  --text: #fafafa;
+  --text-muted: #a1a1aa;
+  --border: #27272a;
+  --glass: rgba(24, 24, 27, 0.8);
+  --shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  --gradient: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
 }
 
 /* Accent overrides removed to lock theme as Digital Twin */
