@@ -40,18 +40,17 @@ def list_trips(
             return []
         query = query.filter(Trip.driver_id == driver_record.id)
     else:
-        # Other roles can view all or filter by driver_id
-        if driver_id:
+        # Others can filter
+        if driver_id is not None:
             query = query.filter(Trip.driver_id == driver_id)
-
-    if vehicle_id:
-        query = query.filter(Trip.vehicle_id == vehicle_id)
+        if vehicle_id is not None:
+            query = query.filter(Trip.vehicle_id == vehicle_id)
 
     if status:
         if status not in TRIP_STATUSES:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid status. Use: {', '.join(TRIP_STATUSES)}",
+                detail=f"Invalid status. Must be: {', '.join(TRIP_STATUSES)}"
             )
         query = query.filter(Trip.status == status)
 
@@ -62,16 +61,13 @@ def list_trips(
 def get_trip(
     trip_id: int,
     user: Authenticated,
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[Session, Depends(get_db)]
 ):
     trip = _get_trip_or_404(trip_id, db)
     if user.role == "Driver":
         driver_record = db.query(Driver).filter(Driver.name == user.name).first()
         if not driver_record or trip.driver_id != driver_record.id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You can only view your own assigned trips",
-            )
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
     return trip
 
 
@@ -79,47 +75,32 @@ def get_trip(
 def create_trip(
     payload: TripCreate,
     _: FleetManager,
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[Session, Depends(get_db)]
 ):
-    # 1. Validate vehicle exists
+    # Verify vehicle exists and is Available
     vehicle = db.query(Vehicle).filter(Vehicle.id == payload.vehicle_id).first()
     if not vehicle:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vehicle not found")
-
-    # 2. Validate driver exists
-    driver = db.query(Driver).filter(Driver.id == payload.driver_id).first()
-    if not driver:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Driver not found")
-
-    # 3. Check vehicle availability (only if trip status is active/scheduled)
-    if payload.status not in ("Draft", "Cancelled") and vehicle.status != "Available":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Vehicle not found")
+    if vehicle.status != "Available":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Vehicle {vehicle.registration_number} is not available (Status: {vehicle.status})",
+            detail=f"Vehicle is currently {vehicle.status} and cannot be assigned"
         )
 
-    # 4. Check driver availability and license expiration
-    if payload.status not in ("Draft", "Cancelled"):
-        if driver.status != "Available":
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Driver {driver.name} is not available (Status: {driver.status})",
-            )
-        if driver.license_expiry_date < date.today():
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Driver {driver.name} has an expired license",
-            )
+    # Verify driver exists, has an active license (not expired), and is Available
+    driver = db.query(Driver).filter(Driver.id == payload.driver_id).first()
+    if not driver:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Driver not found")
+    if driver.license_expiry_date and driver.license_expiry_date < date.today():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Driver's license is expired")
+    if driver.status != "Available":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Driver is currently {driver.status} and cannot be assigned"
+        )
 
-    # 5. Create trip
     trip = Trip(**payload.model_dump())
     db.add(trip)
-
-    # 6. If trip starts in "In Transit" status, set vehicle & driver to "On Trip"
-    if payload.status == "In Transit":
-        vehicle.status = "On Trip"
-        driver.status = "On Trip"
-
     db.commit()
     db.refresh(trip)
     return trip
@@ -130,83 +111,56 @@ def update_trip(
     trip_id: int,
     payload: TripUpdate,
     user: Authenticated,
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[Session, Depends(get_db)]
 ):
     trip = _get_trip_or_404(trip_id, db)
 
-    # Permissions checks
+    # Validate RBAC: Drivers can only update status, actual_distance, and fuel_consumed of their assigned trip
     if user.role == "Driver":
-        # Check if assigned
         driver_record = db.query(Driver).filter(Driver.name == user.name).first()
         if not driver_record or trip.driver_id != driver_record.id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You are not authorized to update this trip",
-            )
-        # Drivers can only update status, actual_distance, and fuel_consumed
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+
+        # Ensure Driver is only updating allowed fields
+        payload_dict = payload.model_dump(exclude_unset=True)
         allowed_fields = {"status", "actual_distance", "fuel_consumed"}
-        provided_fields = payload.model_dump(exclude_unset=True)
-        if not set(provided_fields.keys()).issubset(allowed_fields):
+        extra_fields = set(payload_dict.keys()) - allowed_fields
+        if extra_fields:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Drivers can only update status, actual distance, and fuel consumed",
-            )
-    elif user.role != "Fleet Manager":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only Fleet Managers or the assigned Driver can update this trip",
-        )
-
-    prev_status = trip.status
-
-    # Apply updates
-    updates = payload.model_dump(exclude_unset=True)
-    for field, value in updates.items():
-        setattr(trip, field, value)
-
-    # Handle transitions
-    if trip.status != prev_status:
-        if trip.status not in TRIP_STATUSES:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid status: {trip.status}",
+                detail=f"Drivers are not allowed to update fields: {', '.join(extra_fields)}"
             )
 
+    # Business Logic state transitions
+    new_status = payload.status
+    if new_status and new_status != trip.status:
         vehicle = db.query(Vehicle).filter(Vehicle.id == trip.vehicle_id).first()
         driver = db.query(Driver).filter(Driver.id == trip.driver_id).first()
 
-        # In Transit
-        if trip.status == "In Transit":
+        if new_status == "In Transit":
+            # Vehicle and Driver go to On Trip
             if vehicle:
                 vehicle.status = "On Trip"
             if driver:
                 driver.status = "On Trip"
 
-        # Completed
-        elif trip.status == "Completed":
-            if vehicle:
-                vehicle.status = "Available"
-                # Add actual distance (fallback to planned) to odometer
-                dist = trip.actual_distance if trip.actual_distance is not None else trip.planned_distance
-                if dist:
-                    vehicle.odometer = (vehicle.odometer or 0.0) + dist
-            if driver:
-                driver.status = "Available"
-
-        # Cancelled
-        elif trip.status == "Cancelled":
-            if prev_status == "In Transit":
-                if vehicle:
-                    vehicle.status = "Available"
-                if driver:
-                    driver.status = "Available"
-
-        # Reverted to Scheduled/Draft
-        elif trip.status in ("Scheduled", "Draft") and prev_status == "In Transit":
+        elif new_status in ["Completed", "Cancelled"]:
+            # Vehicle and Driver go back to Available
             if vehicle:
                 vehicle.status = "Available"
             if driver:
                 driver.status = "Available"
+
+            # Odometer calculation on Complete
+            if new_status == "Completed" and vehicle:
+                dist = payload.actual_distance if payload.actual_distance is not None else trip.planned_distance
+                if dist is not None:
+                    vehicle.odometer += dist
+
+    # Apply updates
+    update_data = payload.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(trip, key, value)
 
     db.commit()
     db.refresh(trip)
@@ -217,11 +171,11 @@ def update_trip(
 def delete_trip(
     trip_id: int,
     _: FleetManager,
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[Session, Depends(get_db)]
 ):
     trip = _get_trip_or_404(trip_id, db)
 
-    # Release assets if active
+    # Release vehicle and driver if deleting active trip
     if trip.status == "In Transit":
         vehicle = db.query(Vehicle).filter(Vehicle.id == trip.vehicle_id).first()
         driver = db.query(Driver).filter(Driver.id == trip.driver_id).first()
