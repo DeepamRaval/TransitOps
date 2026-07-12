@@ -190,9 +190,9 @@ export function FleetShell({ children, role }: FleetShellProps) {
           {profileOpen && (
             <div
               ref={popupRef}
-              className="absolute bottom-full left-3 right-3 mb-2 z-[100] animate-fade-in"
+              className="absolute bottom-full left-3 w-80 mb-2 z-[100] animate-fade-in"
             >
-              <div className="rounded-2xl glass-card overflow-hidden shadow-2xl shadow-black/10 dark:shadow-black/50">
+              <div className="rounded-2xl bg-white dark:bg-[#18181b] border border-[var(--border)] overflow-hidden shadow-2xl shadow-black/10 dark:shadow-black/50">
                 {/* Header gradient strip */}
                 <div className={`h-20 bg-gradient-to-r ${roleColor} relative`}>
                   <button
@@ -221,7 +221,7 @@ export function FleetShell({ children, role }: FleetShellProps) {
 
                   <div className="space-y-2.5">
                     {/* Email */}
-                    <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-[var(--bg)]/80 border border-[var(--border)]/40">
+                    <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-[var(--bg)] border border-[var(--border)]/40">
                       <Mail size={14} className="text-[var(--text-muted)] shrink-0" />
                       <div className="min-w-0">
                         <p className="text-[9px] uppercase tracking-wider text-[var(--text-muted)] font-semibold">Email</p>
@@ -230,7 +230,7 @@ export function FleetShell({ children, role }: FleetShellProps) {
                     </div>
 
                     {/* Role */}
-                    <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-[var(--bg)]/80 border border-[var(--border)]/40">
+                    <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-[var(--bg)] border border-[var(--border)]/40">
                       <Shield size={14} className="text-[var(--text-muted)] shrink-0" />
                       <div className="min-w-0">
                         <p className="text-[9px] uppercase tracking-wider text-[var(--text-muted)] font-semibold">Access Level</p>
@@ -239,7 +239,7 @@ export function FleetShell({ children, role }: FleetShellProps) {
                     </div>
 
                     {/* Status */}
-                    <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-[var(--bg)]/80 border border-[var(--border)]/40">
+                    <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-[var(--bg)] border border-[var(--border)]/40">
                       <CheckCircle size={14} className="text-emerald-500 shrink-0" />
                       <div className="min-w-0">
                         <p className="text-[9px] uppercase tracking-wider text-[var(--text-muted)] font-semibold">Status</p>
