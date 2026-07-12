@@ -16,11 +16,13 @@ import {
   Mail,
   Shield,
   CheckCircle,
+  MessageSquare,
 } from 'lucide-react';
 import { Button } from './ui/Button';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import type { TransitOpsRole } from '../types/auth';
+import { SideCommunication } from './layout/SideCommunication';
 
 interface FleetShellProps {
   children: React.ReactNode;
@@ -32,6 +34,7 @@ export function FleetShell({ children, role }: FleetShellProps) {
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const [profileOpen, setProfileOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
 
   const username = user?.name || 'User';
@@ -265,25 +268,36 @@ export function FleetShell({ children, role }: FleetShellProps) {
             <span className="text-[10px] text-[var(--text-muted)]">/</span>
             <span className="text-[10px] tracking-[0.25em] font-black text-orange-500 uppercase">{username}</span>
           </div>
-          <button
-            onClick={toggleTheme}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-semibold text-[var(--text)] hover:bg-[var(--border)]/35 transition-all cursor-pointer bg-[var(--card)]"
-          >
-            {theme === 'light' ? (
-              <>
-                <Moon size={14} /> Dark
-              </>
-            ) : (
-              <>
-                <Sun size={14} className="text-amber-500" /> Light
-              </>
-            )}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsChatOpen(!isChatOpen)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-semibold text-[var(--text)] hover:bg-[var(--border)]/35 transition-all cursor-pointer bg-[var(--card)]"
+            >
+              <MessageSquare size={14} className="text-orange-500 animate-pulse" />
+              <span>Chat Assistant</span>
+            </button>
+            <button
+              onClick={toggleTheme}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-semibold text-[var(--text)] hover:bg-[var(--border)]/35 transition-all cursor-pointer bg-[var(--card)]"
+            >
+              {theme === 'light' ? (
+                <>
+                  <Moon size={14} /> Dark
+                </>
+              ) : (
+                <>
+                  <Sun size={14} className="text-amber-500" /> Light
+                </>
+              )}
+            </button>
+          </div>
         </header>
         <main className="flex-1 p-8 overflow-y-auto bg-[var(--bg)]">
           {children}
         </main>
       </div>
+      {/* Side Chat Assistant Panel */}
+      <SideCommunication isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>
   );
 }
