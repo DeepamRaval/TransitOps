@@ -1,48 +1,46 @@
+@import url("https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,500,700,400,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-heading: "Cabinet Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 :root {
-  --bg: #f8fafc;
+  --bg: #f4f4f5;
   --card: #ffffff;
-  --p: #2563eb;
-  --s: #3b82f6;
+  --p: #f97316;
+  --s: #ea580c;
   --primary: var(--p);
   --secondary: var(--s);
-  --accent: #06b6d4;
-  --text: #0f172a;
-  --text-muted: #64748b;
-  --border: #e2e8f0;
+  --accent: #f97316;
+  --text: #09090b;
+  --text-muted: #71717a;
+  --border: #e4e4e7;
   --glass: rgba(255, 255, 255, 0.7);
-  --shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
-  --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --gradient: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
 }
 
 .dark {
-  --bg: #0f172a;
-  --card: #1e293b;
-  --p: #7c3aed;
-  --s: #8b5cf6;
+  --bg: #09090b;
+  --card: #18181b;
+  --p: #f97316;
+  --s: #ea580c;
   --primary: var(--p);
   --secondary: var(--s);
-  --accent: #a855f7;
-  --text: #f8fafc;
-  --text-muted: #94a3b8;
-  --border: #334155;
-  --glass: rgba(30, 41, 59, 0.8);
-  --shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
-  --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  --accent: #f97316;
+  --text: #fafafa;
+  --text-muted: #a1a1aa;
+  --border: #27272a;
+  --glass: rgba(24, 24, 27, 0.8);
+  --shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  --gradient: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
 }
 
-/* Accent Colors */
-[data-accent="rose"] { --p: #e11d48; --s: #fb7185; }
-[data-accent="emerald"] { --p: #10b981; --s: #34d399; }
-[data-accent="amber"] { --p: #f59e0b; --s: #fbbf24; }
-[data-accent="violet"] { --p: #7c3aed; --s: #a855f7; }
-[data-accent="indigo"] { --p: #2563eb; --s: #3b82f6; }
-[data-accent="slate"] { --p: #334155; --s: #64748b; }
+/* Accent overrides removed to lock theme as Digital Twin */
 
 * {
   box-sizing: border-box;

@@ -49,7 +49,24 @@ const mockDrivers: Driver[] = [
   { id: 3, name: 'Bob Smith', license_number: 'DL-112233', license_expiry_date: '2029-01-01', status: 'Available' }
 ];
 
-export function Trips() {
+interface TripsProps {
+  cardTheme?: 'default' | 'cyberpunk' | 'clay' | 'brutalist';
+}
+
+const getCardStyle = (theme: 'default' | 'cyberpunk' | 'clay' | 'brutalist') => {
+  switch (theme) {
+    case 'cyberpunk':
+      return 'bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 flex flex-col justify-between hover:border-[var(--primary)] hover:shadow-md transition-all duration-300';
+    case 'clay':
+      return 'bg-white/90 dark:bg-slate-800/90 rounded-[2.5rem] border-none shadow-[inset_-4px_-4px_10px_rgba(0,0,0,0.15),_inset_4px_4px_10px_rgba(255,255,255,0.7),_8px_8px_20px_rgba(0,0,0,0.1)] p-5 flex flex-col justify-between transition-all duration-300';
+    case 'brutalist':
+      return 'bg-white dark:bg-amber-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] rounded-none text-slate-900 font-black p-5 flex flex-col justify-between transition-all';
+    default:
+      return 'glass-card border border-[var(--border)] rounded-2xl p-5 flex flex-col justify-between hover:shadow-md transition-all duration-300';
+  }
+};
+
+export function Trips({ cardTheme = 'default' }: TripsProps) {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
@@ -326,7 +343,7 @@ export function Trips() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredTrips.map(trip => (
-            <div key={trip.id} className="glass-card border border-[var(--border)] rounded-2xl p-5 flex flex-col justify-between hover:shadow-md transition-all">
+            <div key={trip.id} className={getCardStyle(cardTheme)}>
               <div className="space-y-4">
                 <div className="flex justify-between items-start">
                   <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${getStatusBadgeClass(trip.status)}`}>

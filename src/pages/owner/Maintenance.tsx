@@ -31,7 +31,24 @@ const mockVehicles: Vehicle[] = [
   { id: 3, registration_number: 'CAR-01', name_model: 'Toyota Prius', max_load_capacity: 350.0, odometer: 12000.0, status: 'Available' }
 ];
 
-export function Maintenance() {
+interface MaintenanceProps {
+  cardTheme?: 'default' | 'cyberpunk' | 'clay' | 'brutalist';
+}
+
+const getCardStyle = (theme: 'default' | 'cyberpunk' | 'clay' | 'brutalist') => {
+  switch (theme) {
+    case 'cyberpunk':
+      return 'bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 flex flex-col justify-between hover:border-[var(--primary)] hover:shadow-md transition-all duration-300';
+    case 'clay':
+      return 'bg-white/90 dark:bg-slate-800/90 rounded-[2.5rem] border-none shadow-[inset_-4px_-4px_10px_rgba(0,0,0,0.15),_inset_4px_4px_10px_rgba(255,255,255,0.7),_8px_8px_20px_rgba(0,0,0,0.1)] p-5 flex flex-col justify-between transition-all duration-300';
+    case 'brutalist':
+      return 'bg-white dark:bg-amber-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] rounded-none text-slate-900 font-black p-5 flex flex-col justify-between transition-all';
+    default:
+      return 'glass-card border border-[var(--border)] rounded-2xl p-5 flex flex-col justify-between hover:shadow-md transition-all duration-300';
+  }
+};
+
+export function Maintenance({ cardTheme = 'default' }: MaintenanceProps) {
   const [logs, setLogs] = useState<MaintenanceLog[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -210,7 +227,7 @@ export function Maintenance() {
           <p className="text-sm">Log a new maintenance event to send a vehicle to the shop.</p>
         </div>
       ) : (
-        <div className="glass-card border border-[var(--border)] rounded-2xl overflow-hidden">
+        <div className={getCardStyle(cardTheme) + " overflow-hidden !p-0"}>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -230,7 +247,7 @@ export function Maintenance() {
                   <tr key={log.id} className="hover:bg-[var(--border)]/10 transition-colors">
                     <td className="p-4 font-semibold">#M-{log.id}</td>
                     <td className="p-4">
-                      <span className="bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded font-mono text-xs">
+                      <span className="bg-[var(--bg)] border border-[var(--primary)]/30 px-2 py-0.5 rounded font-mono text-xs text-[var(--primary)]">
                         V-{log.vehicle_id}
                       </span>
                     </td>
