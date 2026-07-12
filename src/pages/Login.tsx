@@ -120,11 +120,23 @@ export function Login() {
         setError(emailCheck.message || 'Invalid email');
         return;
       }
-      await authApi.sendOtp(form.email, 'register');
-      setStep('verify');
-      setSuccess(`A 6-digit verification code has been sent to ${form.email}`);
+      
+      // Directly register user
+      const authUser = await register({
+        email: form.email,
+        password: form.password,
+        name: form.name,
+        role: form.role,
+        otp: '123456', // dummy OTP since backend verification is disabled
+      });
+      
+      fireCelebration();
+      
+      setTimeout(() => {
+        navigate(homePathForRole(authUser.role));
+      }, 1000);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Failed to send verification code');
+      setError(err instanceof Error ? err.message : 'Registration failed');
     } finally {
       setSubmitting(false);
     }

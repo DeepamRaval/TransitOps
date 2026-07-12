@@ -10,7 +10,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
-    otp: str
+    otp: Optional[str] = None
 
 class UserResponse(UserBase):
     id: int
@@ -110,6 +110,11 @@ class TripResponse(TripBase):
     class Config:
         from_attributes = True
 
+class TripComplete(BaseModel):
+    actual_distance: float
+    fuel_consumed: float
+    fuel_cost: float
+
 
 # --- Maintenance Schemas ---
 class MaintenanceBase(BaseModel):
@@ -128,6 +133,10 @@ class MaintenanceResponse(MaintenanceBase):
 
     class Config:
         from_attributes = True
+
+class MaintenanceClose(BaseModel):
+    cost: float
+    end_date: date
 
 
 # --- Fuel Log Schemas ---

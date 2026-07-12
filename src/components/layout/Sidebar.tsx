@@ -3,7 +3,8 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, CreditCard, Wallet, CalendarOff, BarChart3,
   Settings, LogOut, Building2, ChevronLeft, ChevronRight, Bell, Shield,
-  ListTodo, Crown, UserCog, Activity, MessageSquare, BookOpen, DollarSign, Sparkles
+  ListTodo, Crown, UserCog, Activity, MessageSquare, BookOpen, DollarSign, Sparkles,
+  Navigation, Wrench
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useData, useCurrentUser } from '../../contexts/DataContext';
@@ -22,6 +23,8 @@ interface NavItem {
 
 const ownerLinks: NavItem[] = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/dashboard/trips', icon: Navigation, label: 'Trips' },
+  { to: '/dashboard/maintenance', icon: Wrench, label: 'Maintenance' },
   { to: '/dashboard/communication', icon: MessageSquare, label: 'Communication' },
   { to: '/dashboard/private-messages', icon: BookOpen, label: 'Private Chat' },
   { to: '/dashboard/profile', icon: Building2, label: 'Business Profile' },

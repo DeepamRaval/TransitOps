@@ -94,6 +94,9 @@ export async function verifyEmailDeliverability(email: string): Promise<EmailVal
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: format.normalized }),
     });
+    if (res.status === 404) {
+      return { valid: true, normalized: format.normalized };
+    }
     const data = await res.json() as EmailValidationResult & { error?: string };
     if (data.valid) {
       return { valid: true, normalized: data.normalized || format.normalized };
