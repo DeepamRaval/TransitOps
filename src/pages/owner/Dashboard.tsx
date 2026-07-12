@@ -170,7 +170,7 @@ export function OwnerDashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--border)] text-sm text-[var(--text)]">
-                  {kpis.recent_trips.map((trip: any) => (
+                  {(kpis.recent_trips || []).map((trip: any) => (
                     <tr key={trip.id} className="hover:bg-[var(--border)]/10 transition-colors">
                       <td className="py-3 font-semibold text-[var(--primary)]">{trip.id}</td>
                       <td className="py-3">{trip.vehicle}</td>
@@ -194,8 +194,8 @@ export function OwnerDashboard() {
           <div>
             <h3 className="text-base font-bold text-[var(--text)] mb-6">Vehicle Status</h3>
             <div className="space-y-5">
-              {Object.entries(kpis.vehicle_status_counts).map(([statusName, count]: [string, any]) => {
-                const total = Object.values(kpis.vehicle_status_counts).reduce((s: any, c: any) => s + c, 0) as number;
+              {Object.entries(kpis.vehicle_status_counts || {}).map(([statusName, count]: [string, any]) => {
+                const total = Object.values(kpis.vehicle_status_counts || {}).reduce((s: any, c: any) => s + c, 0) as number;
                 const percentage = total > 0 ? (count / total) * 100 : 0;
                 
                 // Color mapping matching Excalidraw mockup
