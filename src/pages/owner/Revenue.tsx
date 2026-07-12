@@ -145,10 +145,10 @@ export function Revenue() {
         showBack={false}
         action={
           <div className="flex gap-2">
-            <Button onClick={() => setShowFuelModal(true)} className="glow-primary flex items-center gap-2">
+            <Button onClick={() => setShowFuelModal(true)} className="flex items-center gap-2">
               <Fuel size={16} /> Log Fuel
             </Button>
-            <Button onClick={() => setShowExpenseModal(true)} className="bg-amber-500 hover:bg-amber-600 text-white flex items-center gap-2">
+            <Button onClick={() => setShowExpenseModal(true)} className="flex items-center gap-2">
               <Plus size={16} /> Add Expense
             </Button>
           </div>

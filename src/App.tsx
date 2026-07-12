@@ -50,7 +50,7 @@ function App() {
               <Route
                 path="/fleet/vehicles"
                 element={
-                  <ProtectedRoute roles={['Fleet Manager']}>
+                  <ProtectedRoute roles={['Fleet Manager', 'Driver']}>
                     <VehiclesPage />
                   </ProtectedRoute>
                 }
@@ -58,7 +58,7 @@ function App() {
               <Route
                 path="/fleet/drivers"
                 element={
-                  <ProtectedRoute roles={['Fleet Manager']}>
+                  <ProtectedRoute roles={['Fleet Manager', 'Driver']}>
                     <DriversPage role="Fleet Manager" />
                   </ProtectedRoute>
                 }
@@ -66,7 +66,7 @@ function App() {
               <Route
                 path="/fleet/trips"
                 element={
-                  <ProtectedRoute roles={['Fleet Manager']}>
+                  <ProtectedRoute roles={['Fleet Manager', 'Driver']}>
                     <TripsPage />
                   </ProtectedRoute>
                 }
@@ -94,7 +94,7 @@ function App() {
               <Route
                 path="/fleet/analytics"
                 element={
-                  <ProtectedRoute roles={['Fleet Manager', 'Financial Analyst', 'Safety Officer']}>
+                  <ProtectedRoute roles={['Fleet Manager', 'Financial Analyst']}>
                     <FleetShell role="Fleet Manager">
                       <Reports />
                     </FleetShell>

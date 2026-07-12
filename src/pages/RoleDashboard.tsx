@@ -5,6 +5,7 @@ import { FleetShell } from '../components/FleetShell';
 import { useAuth } from '../contexts/AuthContext';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import type { TransitOpsRole } from '../types/auth';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 interface DashboardKPIs {
   active_vehicles: number;
@@ -81,10 +82,7 @@ export function RoleDashboard({ role }: { role: TransitOpsRole }) {
   const statusCounts = kpis.vehicle_status_counts;
   const totalVehiclesCount = statusCounts.Available + statusCounts['On Trip'] + statusCounts['In Shop'] + statusCounts.Retired;
 
-  const getPercentage = (count: number) => {
-    if (totalVehiclesCount === 0) return 0;
-    return (count / totalVehiclesCount) * 100;
-  };
+
 
   // Restrict other roles to simple dashboards or render full if Fleet Manager/Safety
   if (role !== 'Fleet Manager' && role !== 'Safety Officer' && role !== 'Financial Analyst') {
@@ -301,70 +299,85 @@ export function RoleDashboard({ role }: { role: TransitOpsRole }) {
 
             {/* Right sidebar stats panel */}
             <div className="space-y-6">
-              {/* Vehicle Status Progress bars */}
+              {/* Vehicle Status Pie Chart */}
               <div className="glass-card rounded-2xl border border-[var(--border)] p-6 bg-[var(--card)]">
                 <h3 className="font-bold text-sm text-[var(--text)] uppercase tracking-wider mb-5">
                   Vehicle Status
                 </h3>
-                <div className="space-y-4">
-                  {/* Available bar */}
-                  <div>
-                    <div className="flex justify-between text-xs font-semibold mb-1.5">
-                      <span className="text-[var(--text-muted)]">Available</span>
-                      <span>{statusCounts.Available}</span>
-                    </div>
-                    <div className="w-full h-2 rounded-full bg-[#1c1c1f]">
-                      <div
-                        className="h-2 rounded-full bg-emerald-500 transition-all duration-500"
-                        style={{ width: `${getPercentage(statusCounts.Available)}%` }}
-                      ></div>
-                    </div>
-                  </div>
+                
+                {(() => {
+                  const pieData = [
+                    { name: 'Available', value: statusCounts.Available, color: '#10b981' },
+                    { name: 'On Trip', value: statusCounts['On Trip'], color: '#3b82f6' },
+                    { name: 'In Shop', value: statusCounts['In Shop'], color: '#f97316' },
+                    { name: 'Retired', value: statusCounts.Retired, color: '#f43f5e' },
+                  ].filter(item => item.value > 0);
 
-                  {/* On Trip bar */}
-                  <div>
-                    <div className="flex justify-between text-xs font-semibold mb-1.5">
-                      <span className="text-[var(--text-muted)]">On Trip</span>
-                      <span>{statusCounts['On Trip']}</span>
-                    </div>
-                    <div className="w-full h-2 rounded-full bg-[#1c1c1f]">
-                      <div
-                        className="h-2 rounded-full bg-blue-500 transition-all duration-500"
-                        style={{ width: `${getPercentage(statusCounts['On Trip'])}%` }}
-                      ></div>
-                    </div>
-                  </div>
+                  const hasData = pieData.length > 0;
+                  const displayPieData = hasData ? pieData : [{ name: 'No Vehicles', value: 1, color: 'var(--border)' }];
 
-                  {/* In Shop bar */}
-                  <div>
-                    <div className="flex justify-between text-xs font-semibold mb-1.5">
-                      <span className="text-[var(--text-muted)]">In Shop</span>
-                      <span>{statusCounts['In Shop']}</span>
-                    </div>
-                    <div className="w-full h-2 rounded-full bg-[#1c1c1f]">
-                      <div
-                        className="h-2 rounded-full bg-orange-500 transition-all duration-500"
-                        style={{ width: `${getPercentage(statusCounts['In Shop'])}%` }}
-                      ></div>
-                    </div>
-                  </div>
+                  return (
+                    <div className="flex flex-col sm:flex-row items-center gap-6">
+                      {/* Donut Chart with center label */}
+                      <div className="w-full sm:w-1/2 h-44 flex items-center justify-center relative shrink-0">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={displayPieData}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={46}
+                              outerRadius={62}
+                              paddingAngle={hasData ? 3 : 0}
+                              dataKey="value"
+                            >
+                              {displayPieData.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} stroke="var(--card)" strokeWidth={2} />
+                              ))}
+                            </Pie>
+                            <Tooltip
+                              formatter={(value, name) => [hasData ? value : 0, name]}
+                              contentStyle={{
+                                background: 'var(--card)',
+                                border: '1px solid var(--border)',
+                                borderRadius: '12px',
+                                color: 'var(--text)',
+                                fontSize: '11px',
+                                boxShadow: 'var(--shadow)'
+                              }}
+                            />
+                          </PieChart>
+                        </ResponsiveContainer>
+                        <div className="absolute flex flex-col items-center justify-center pointer-events-none">
+                          <span className="text-2xl font-black text-[var(--text)] leading-none">
+                            {totalVehiclesCount}
+                          </span>
+                          <span className="text-[9px] uppercase tracking-wider text-[var(--text-muted)] font-bold mt-1">
+                            Vehicles
+                          </span>
+                        </div>
+                      </div>
 
-                  {/* Retired bar */}
-                  <div>
-                    <div className="flex justify-between text-xs font-semibold mb-1.5">
-                      <span className="text-[var(--text-muted)]">Retired</span>
-                      <span>{statusCounts.Retired}</span>
+                      {/* Legend List */}
+                      <div className="w-full sm:w-1/2 space-y-2.5">
+                        {[
+                          { name: 'Available', count: statusCounts.Available, color: 'bg-emerald-500' },
+                          { name: 'On Trip', count: statusCounts['On Trip'], color: 'bg-blue-500' },
+                          { name: 'In Shop', count: statusCounts['In Shop'], color: 'bg-orange-500' },
+                          { name: 'Retired', count: statusCounts.Retired, color: 'bg-rose-500' },
+                        ].map((item, idx) => (
+                          <div key={idx} className="flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-2">
+                              <span className={`w-2.5 h-2.5 rounded-full ${item.color} shrink-0`} />
+                              <span className="text-[var(--text-muted)] font-semibold">{item.name}</span>
+                            </div>
+                            <span className="font-bold text-[var(--text)]">{item.count}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div className="w-full h-2 rounded-full bg-[#1c1c1f]">
-                      <div
-                        className="h-2 rounded-full bg-rose-500 transition-all duration-500"
-                        style={{ width: `${getPercentage(statusCounts.Retired)}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Drivers on Duty counter footer removed to avoid duplication */}
+                  );
+                })()}
               </div>
             </div>
           </div>

@@ -71,6 +71,40 @@ export function Reports() {
     downloadReport(title, headers, rows, format);
   };
 
+  const handleExportCSV = () => {
+    const headers = ['Metric', 'Value'];
+    const rows = [
+      ['Fuel Efficiency', report.fuel_efficiency],
+      ['Fleet Utilization', report.fleet_utilization_percent],
+      ['Total Operational Cost', `INR ${report.operational_cost}`],
+      ['Average Vehicle ROI', report.vehicle_roi_percent]
+    ];
+    
+    // Add costliest vehicles to the report
+    if (report.costliest_vehicles) {
+      report.costliest_vehicles.forEach((v: any) => {
+        rows.push([`Operational Cost (${v.name})`, `INR ${v.cost}`]);
+      });
+    }
+
+    // Generate CSV content string
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    // Create blob and download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'transitops-analytics.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -82,7 +116,10 @@ export function Reports() {
             <Button onClick={() => fetchAnalytics()} variant="outline" className="flex items-center gap-2">
               <RefreshCw size={16} /> Refresh
             </Button>
-            <Button onClick={() => handleExport('pdf')} className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2">
+            <Button onClick={() => handleExportCSV()} className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2">
+              <FileDown size={16} /> Export CSV
+            </Button>
+            <Button onClick={() => handleExport('pdf')} className="bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-2">
               <FileDown size={16} /> Export PDF
             </Button>
           </div>

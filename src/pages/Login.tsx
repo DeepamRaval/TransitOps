@@ -25,7 +25,7 @@ export function Login() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { login, register, user } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme, fontSize, setFontSize } = useTheme();
   const { emailError, checking, validateEmail, clearEmailError } = useEmailValidation();
 
   const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -244,14 +244,14 @@ export function Login() {
                 <Truck size={20} className="text-orange-200" />
               </div>
               <div>
-                <span className="text-2xl font-black tracking-tight block">TransitOps</span>
+                <span className="text-2xl font-black font-heading tracking-tight block">TransitOps</span>
                 <span className="text-[10px] font-medium tracking-widest uppercase opacity-60 text-orange-200">Smart Transport Operations</span>
               </div>
             </div>
 
             <div className="space-y-8 animate-fade-in mt-6">
               <div className="space-y-3">
-                <h1 className="text-4xl font-bold leading-tight tracking-tight">
+                <h1 className="text-4xl font-black font-heading leading-tight tracking-tight">
                   Move smarter.<br />
                   <span className="text-orange-200">Operate faster.</span>
                 </h1>
@@ -262,14 +262,14 @@ export function Login() {
 
               <div className="grid gap-4">
                 {[
-                  { icon: <Route size={18} className="text-orange-200" />, title: 'Dispatch Control', desc: 'Available vehicles and drivers ready.' },
-                  { icon: <Shield size={18} className="text-orange-200" />, title: 'Safety Compliance', desc: 'License validity and score monitoring.' },
+                  { icon: <Route size={18} className="text-orange-200" />, title: 'Dispatch Control', desc: 'Available vehicles and drivers ready for trip assignment.' },
+                  { icon: <Shield size={18} className="text-orange-200" />, title: 'Safety Compliance', desc: 'License validity and safety score monitoring.' },
                   { icon: <BarChart3 size={18} className="text-orange-200" />, title: 'Operational Insights', desc: 'Fuel, maintenance, and ROI analytics.' },
                 ].map((item, i) => (
                   <div key={i} className="flex gap-3 p-3.5 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
                     <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center shrink-0">{item.icon}</div>
                     <div>
-                      <h4 className="font-semibold text-sm">{item.title}</h4>
+                      <h4 className="font-bold font-heading text-sm text-white">{item.title}</h4>
                       <p className="text-xs text-white/50">{item.desc}</p>
                     </div>
                   </div>
@@ -287,9 +287,59 @@ export function Login() {
           <Link to="/" className="flex items-center gap-2 text-sm font-medium text-[var(--text-muted)] hover:text-[var(--primary)] transition-all bg-[var(--card)]/50 backdrop-blur px-4 py-2 rounded-full border border-[var(--border)]">
             <ArrowLeft size={16} /> Back to Home
           </Link>
-          <button onClick={toggleTheme} className="p-3 rounded-full bg-[var(--card)]/50 backdrop-blur border border-[var(--border)] hover:bg-[var(--primary)]/5 transition-all cursor-pointer shadow-sm">
-            {theme === 'light' ? <Moon size={20} className="text-slate-600" /> : <Sun size={20} className="text-amber-400" />}
-          </button>
+          <div className="flex items-center gap-3">
+            {/* Font Size Selector */}
+            <div className="flex items-center gap-1 rounded-full bg-[var(--card)]/50 backdrop-blur border border-[var(--border)] p-1">
+              <button
+                onClick={() => setFontSize('sm')}
+                className={`px-2.5 py-1 rounded-full text-[10px] font-bold cursor-pointer transition-all ${
+                  fontSize === 'sm'
+                    ? 'bg-orange-500 text-white'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text)]'
+                }`}
+                title="Small Text"
+              >
+                A-
+              </button>
+              <button
+                onClick={() => setFontSize('md')}
+                className={`px-2.5 py-1 rounded-full text-xs font-bold cursor-pointer transition-all ${
+                  fontSize === 'md'
+                    ? 'bg-orange-500 text-white'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text)]'
+                }`}
+                title="Normal Text"
+              >
+                A
+              </button>
+              <button
+                onClick={() => setFontSize('lg')}
+                className={`px-2.5 py-1 rounded-full text-sm font-bold cursor-pointer transition-all ${
+                  fontSize === 'lg'
+                    ? 'bg-orange-500 text-white'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text)]'
+                }`}
+                title="Large Text"
+              >
+                A+
+              </button>
+              <button
+                onClick={() => setFontSize('xl')}
+                className={`px-2.5 py-1 rounded-full text-base font-bold cursor-pointer transition-all ${
+                  fontSize === 'xl'
+                    ? 'bg-orange-500 text-white'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text)]'
+                }`}
+                title="Extra Large Text"
+              >
+                A++
+              </button>
+            </div>
+
+            <button onClick={toggleTheme} className="p-3 rounded-full bg-[var(--card)]/50 backdrop-blur border border-[var(--border)] hover:bg-[var(--primary)]/5 transition-all cursor-pointer shadow-sm">
+              {theme === 'light' ? <Moon size={20} className="text-slate-600" /> : <Sun size={20} className="text-amber-400" />}
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 flex items-center justify-center p-8 overflow-y-auto">
@@ -302,7 +352,7 @@ export function Login() {
                   <Sparkles size={18} />
                   TransitOps Secure Access
                 </div>
-                <h2 className="text-3xl font-black text-[var(--text)] tracking-tight mb-2">
+                <h2 className="text-3xl font-black font-heading text-[var(--text)] tracking-tight mb-2">
                   {mode === 'login' ? 'Welcome back' : 'Create your account'}
                 </h2>
                 <p className="text-[var(--text-muted)] text-sm px-4">

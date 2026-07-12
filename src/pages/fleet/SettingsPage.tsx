@@ -16,7 +16,6 @@ export function SettingsPage() {
     localStorage.getItem('setting_distance_unit') || 'Kilometers'
   );
 
-  const [searchQuery, setSearchQuery] = useState('');
   const [showToast, setShowToast] = useState(false);
 
   const handleSaveChanges = () => {
@@ -41,20 +40,9 @@ export function SettingsPage() {
     <FleetShell role="Fleet Manager">
       <div className="space-y-6 relative">
         {/* Top Header Mockup Component */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-[var(--border)]/60">
-          {/* Search Bar */}
-          <div className="relative w-full max-w-xs">
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[var(--card)] border border-[var(--border)] rounded-xl px-4 py-2 text-xs text-[var(--text)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-sm"
-            />
-          </div>
-
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4 pb-4 border-b border-[var(--border)]/60">
           {/* User Profile / RK Badge */}
-          <div className="flex items-center gap-3 self-end sm:self-auto">
+          <div className="flex items-center gap-3">
             <span className="text-xs font-semibold text-[var(--text)]">{username}</span>
             <div className="flex items-center bg-blue-500/10 text-blue-500 border border-blue-500/20 rounded-xl pl-3 pr-1.5 py-1 text-[10px] font-bold uppercase tracking-wider gap-2">
               {userRole}

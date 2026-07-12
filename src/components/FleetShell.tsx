@@ -39,7 +39,7 @@ interface FleetShellProps {
 
 export function FleetShell({ children, role }: FleetShellProps) {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme, fontSize, setFontSize } = useTheme();
   const location = useLocation();
   const [profileOpen, setProfileOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -85,22 +85,57 @@ export function FleetShell({ children, role }: FleetShellProps) {
   const driverPath = role === 'Safety Officer' ? '/safety/drivers' : '/fleet/drivers';
 
   const getSidebarLinks = () => {
-    if (role === 'Driver') {
+    const userRole = userRoleLabel;
+
+    if (userRole === 'Driver') {
       return [
         { to: dashboardPath, label: 'Dashboard', icon: LayoutGrid },
+        { to: '/fleet/vehicles', label: 'Fleet', icon: Truck },
+        { to: '/fleet/drivers', label: 'Drivers', icon: Users },
+        { to: '/fleet/trips', label: 'Trips', icon: Route },
       ];
     }
 
-    return [
+    const sidebarLinks = [
       { to: dashboardPath, label: 'Dashboard', icon: LayoutGrid },
-      { to: '/fleet/vehicles', label: 'Fleet', icon: Truck },
-      { to: driverPath, label: 'Drivers', icon: Users },
-      { to: '/fleet/trips', label: 'Trips', icon: Route },
-      { to: '/fleet/maintenance', label: 'Maintenance', icon: Wrench },
-      { to: '/fleet/expenses', label: 'Fuel & Expenses', icon: Fuel },
-      { to: '/fleet/analytics', label: 'Analytics', icon: BarChart3 },
-      { to: '/fleet/settings', label: 'Settings', icon: Settings },
     ];
+
+    // Fleet (Vehicles) - only Fleet Manager
+    if (userRole === 'Fleet Manager') {
+      sidebarLinks.push({ to: '/fleet/vehicles', label: 'Fleet', icon: Truck });
+    }
+
+    // Drivers - Fleet Manager, Safety Officer
+    if (userRole === 'Fleet Manager' || userRole === 'Safety Officer') {
+      sidebarLinks.push({ to: driverPath, label: 'Drivers', icon: Users });
+    }
+
+    // Trips - Fleet Manager
+    if (userRole === 'Fleet Manager') {
+      sidebarLinks.push({ to: '/fleet/trips', label: 'Trips', icon: Route });
+    }
+
+    // Maintenance - Fleet Manager, Safety Officer
+    if (userRole === 'Fleet Manager' || userRole === 'Safety Officer') {
+      sidebarLinks.push({ to: '/fleet/maintenance', label: 'Maintenance', icon: Wrench });
+    }
+
+    // Fuel & Expenses - Fleet Manager, Financial Analyst
+    if (userRole === 'Fleet Manager' || userRole === 'Financial Analyst') {
+      sidebarLinks.push({ to: '/fleet/expenses', label: 'Fuel & Expenses', icon: Fuel });
+    }
+
+    // Analytics - Fleet Manager, Financial Analyst
+    if (userRole === 'Fleet Manager' || userRole === 'Financial Analyst') {
+      sidebarLinks.push({ to: '/fleet/analytics', label: 'Analytics', icon: BarChart3 });
+    }
+
+    // Settings - Fleet Manager, Safety Officer, Financial Analyst
+    if (userRole === 'Fleet Manager' || userRole === 'Safety Officer' || userRole === 'Financial Analyst') {
+      sidebarLinks.push({ to: '/fleet/settings', label: 'Settings', icon: Settings });
+    }
+
+    return sidebarLinks;
   };
 
   const links = getSidebarLinks();
@@ -199,7 +234,7 @@ export function FleetShell({ children, role }: FleetShellProps) {
               ref={popupRef}
               className="absolute bottom-full left-3 w-80 mb-2 z-[100] animate-fade-in"
             >
-              <div className="rounded-2xl bg-white dark:bg-[#18181b] border border-[var(--border)] overflow-hidden shadow-2xl shadow-black/10 dark:shadow-black/50">
+              <div className="rounded-2xl bg-[var(--card)] border border-[var(--border)] overflow-hidden shadow-2xl shadow-black/10 dark:shadow-black/50">
                 {/* Header gradient strip */}
                 <div className={`h-20 bg-gradient-to-r ${roleColor} relative`}>
                   <button
@@ -283,6 +318,54 @@ export function FleetShell({ children, role }: FleetShellProps) {
             <span className="text-[10px] tracking-[0.25em] font-black text-orange-500 uppercase">{username}</span>
           </div>
           <div className="flex items-center gap-3">
+            {/* Font Size Selector */}
+            <div className="flex items-center gap-1 rounded-lg border border-[var(--border)] p-1 bg-[var(--card)]">
+              <button
+                onClick={() => setFontSize('sm')}
+                className={`px-2.5 py-1 rounded text-[10px] font-bold cursor-pointer transition-all ${
+                  fontSize === 'sm'
+                    ? 'bg-orange-500 text-white'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text)]'
+                }`}
+                title="Small Text"
+              >
+                A-
+              </button>
+              <button
+                onClick={() => setFontSize('md')}
+                className={`px-2.5 py-1 rounded text-xs font-bold cursor-pointer transition-all ${
+                  fontSize === 'md'
+                    ? 'bg-orange-500 text-white'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text)]'
+                }`}
+                title="Normal Text"
+              >
+                A
+              </button>
+              <button
+                onClick={() => setFontSize('lg')}
+                className={`px-2.5 py-1 rounded text-sm font-bold cursor-pointer transition-all ${
+                  fontSize === 'lg'
+                    ? 'bg-orange-500 text-white'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text)]'
+                }`}
+                title="Large Text"
+              >
+                A+
+              </button>
+              <button
+                onClick={() => setFontSize('xl')}
+                className={`px-2.5 py-1 rounded text-base font-bold cursor-pointer transition-all ${
+                  fontSize === 'xl'
+                    ? 'bg-orange-500 text-white'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text)]'
+                }`}
+                title="Extra Large Text"
+              >
+                A++
+              </button>
+            </div>
+
             <button
               onClick={toggleTheme}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-semibold text-[var(--text)] hover:bg-[var(--border)]/35 transition-all cursor-pointer bg-[var(--card)]"

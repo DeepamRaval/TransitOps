@@ -4,9 +4,11 @@ import { getLocalData, loadData, saveData } from '../utils/storage';
 interface ThemeContextType {
   theme: 'light' | 'dark';
   accentColor: string;
+  fontSize: string;
   toggleTheme: () => void;
   setTheme: (theme: 'light' | 'dark') => void;
   setAccentColor: (color: string) => void;
+  setFontSize: (size: string) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
@@ -14,6 +16,20 @@ const ThemeContext = createContext<ThemeContextType | null>(null);
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<'light' | 'dark'>(() => getLocalData().settings.theme);
   const [accentColor, setAccentColorState] = useState<string>(() => getLocalData().settings.accentColor || 'indigo');
+  const [fontSize, setFontSize] = useState<string>(() => {
+    return localStorage.getItem('setting_font_size') || 'md';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('setting_font_size', fontSize);
+    const sizeMap: Record<string, string> = {
+      sm: '14px',
+      md: '16px',
+      lg: '18px',
+      xl: '20px',
+    };
+    document.documentElement.style.fontSize = sizeMap[fontSize] || '16px';
+  }, [fontSize]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
@@ -31,7 +47,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const setAccentColor = (c: string) => setAccentColorState(c);
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme, accentColor, setAccentColor }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme, accentColor, setAccentColor, fontSize, setFontSize }}>
       {children}
     </ThemeContext.Provider>
   );
