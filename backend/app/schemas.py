@@ -5,20 +5,42 @@ from typing import Optional, List
 # --- User & Auth Schemas ---
 class UserBase(BaseModel):
     email: EmailStr
+    name: str
     role: str
 
 class UserCreate(UserBase):
     password: str
+    otp: str
 
 class UserResponse(UserBase):
     id: int
+    email_verified: bool
 
     class Config:
         from_attributes = True
 
 class Token(BaseModel):
     access_token: str
-    token_type: str
+    token_type: str = "bearer"
+    user: UserResponse
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+class SendOtpRequest(BaseModel):
+    email: EmailStr
+    purpose: str  # register | reset_password
+
+class VerifyOtpRequest(BaseModel):
+    email: EmailStr
+    otp: str
+    purpose: str
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    otp: str
+    new_password: str
 
 class TokenData(BaseModel):
     email: Optional[str] = None

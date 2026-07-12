@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Date, DateTime, ForeignKey, func
+from sqlalchemy import Boolean, Column, Date, DateTime, Float, ForeignKey, Integer, String, func
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -7,8 +7,23 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(255), unique=True, index=True, nullable=False)
+    name = Column(String(255), nullable=False, default="")
     password_hash = Column(String(255), nullable=False)
-    role = Column(String(50), nullable=False)  # e.g., Fleet Manager, Driver, Safety Officer, Financial Analyst
+    role = Column(String(50), nullable=False)
+    email_verified = Column(Boolean, default=False, nullable=False)
+    failed_login_attempts = Column(Integer, default=0, nullable=False)
+    locked_until = Column(DateTime(timezone=True), nullable=True)
+
+class OtpCode(Base):
+    __tablename__ = "otp_codes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(255), index=True, nullable=False)
+    code = Column(String(6), nullable=False)
+    purpose = Column(String(32), nullable=False)  # register | reset_password
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    used = Column(Boolean, default=False, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 class Vehicle(Base):
     __tablename__ = "vehicles"
@@ -16,11 +31,11 @@ class Vehicle(Base):
     id = Column(Integer, primary_key=True, index=True)
     registration_number = Column(String(100), unique=True, index=True, nullable=False)
     name_model = Column(String(255), nullable=False)
-    type = Column(String(100), nullable=False)  # e.g., Truck, Van, Sedan, Container
-    max_load_capacity = Column(Float, nullable=False)  # in kg
-    odometer = Column(Float, default=0.0)  # in km
+    type = Column(String(100), nullable=False)
+    max_load_capacity = Column(Float, nullable=False)
+    odometer = Column(Float, default=0.0)
     acquisition_cost = Column(Float, nullable=False)
-    status = Column(String(50), default="Available")  # Available, On Trip, In Shop, Retired
+    status = Column(String(50), default="Available")
     region = Column(String(100), nullable=True)
 
     trips = relationship("Trip", back_populates="vehicle")
@@ -38,7 +53,7 @@ class Driver(Base):
     license_expiry_date = Column(Date, nullable=False)
     contact_number = Column(String(50), nullable=False)
     safety_score = Column(Float, default=100.0)
-    status = Column(String(50), default="Available")  # Available, On Trip, Off Duty, Suspended
+    status = Column(String(50), default="Available")
 
     trips = relationship("Trip", back_populates="driver")
 
@@ -55,7 +70,7 @@ class Trip(Base):
     actual_distance = Column(Float, nullable=True)
     fuel_consumed = Column(Float, nullable=True)
     revenue = Column(Float, default=0.0)
-    status = Column(String(50), default="Draft")  # Draft, Dispatched, Completed, Cancelled
+    status = Column(String(50), default="Draft")
 
     vehicle = relationship("Vehicle", back_populates="trips")
     driver = relationship("Driver", back_populates="trips")
@@ -67,7 +82,7 @@ class MaintenanceLog(Base):
     vehicle_id = Column(Integer, ForeignKey("vehicles.id"), nullable=False)
     description = Column(String(255), nullable=False)
     cost = Column(Float, default=0.0)
-    status = Column(String(50), default="Active")  # Active, Closed
+    status = Column(String(50), default="Active")
     start_date = Column(Date, nullable=False)
     end_date = Column(Date, nullable=True)
 
@@ -78,7 +93,7 @@ class FuelLog(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     vehicle_id = Column(Integer, ForeignKey("vehicles.id"), nullable=False)
-    trip_id = Column(Integer, nullable=True)  # Optional link to a specific trip
+    trip_id = Column(Integer, nullable=True)
     liters = Column(Float, nullable=False)
     cost = Column(Float, nullable=False)
     date = Column(Date, nullable=False)
@@ -90,7 +105,7 @@ class Expense(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     vehicle_id = Column(Integer, ForeignKey("vehicles.id"), nullable=False)
-    category = Column(String(100), nullable=False)  # Toll, Maintenance, Fuel, Other
+    category = Column(String(100), nullable=False)
     cost = Column(Float, nullable=False)
     date = Column(Date, nullable=False)
     description = Column(String(255), nullable=True)
